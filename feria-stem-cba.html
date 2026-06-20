@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feria STEM | CBA Santa Cruz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    html { scroll-behavior: smooth; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .faq-answer.open { max-height: 200px; }
+  </style>
+</head>
+<body class="bg-[#0c0c15] text-white">
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="sticky top-0 z-50 bg-[#0c0c15]/95 backdrop-blur border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 bg-[#1fb58f] rounded-sm"></div>
+        <span class="text-xl font-black">STEM</span>
+        <span class="text-xl font-bold text-[#1fb58f]">×CBA</span>
+      </div>
+
+      <!-- Desktop links -->
+      <div class="hidden md:flex gap-8 items-center flex-1 justify-center">
+        <a href="#inicio" class="text-sm text-gray-400 hover:text-white transition">Inicio</a>
+        <a href="#evento" class="text-sm text-gray-400 hover:text-white transition">Evento</a>
+        <a href="#agenda" class="text-sm text-gray-400 hover:text-white transition">Agenda</a>
+        <a href="#expositores" class="text-sm text-gray-400 hover:text-white transition">Expositores</a>
+        <a href="#faq" class="text-sm text-gray-400 hover:text-white transition">FAQ</a>
+      </div>
+
+      <!-- CTA buttons -->
+      <div class="hidden md:flex gap-3">
+        <button class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 text-white px-5 py-2 rounded-lg font-semibold text-sm transition">
+          Ser voluntario
+        </button>
+        <button class="bg-[#1fb58f] hover:bg-[#18a974] text-[#0c0c15] px-6 py-2 rounded-lg font-semibold text-sm transition">
+          Registrarse
+        </button>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button id="menuBtn" class="md:hidden text-white" onclick="toggleMenu()">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-gray-800 bg-[#151522] p-4 space-y-3">
+      <a href="#inicio" class="block text-sm text-gray-400 hover:text-white">Inicio</a>
+      <a href="#evento" class="block text-sm text-gray-400 hover:text-white">Evento</a>
+      <a href="#agenda" class="block text-sm text-gray-400 hover:text-white">Agenda</a>
+      <a href="#expositores" class="block text-sm text-gray-400 hover:text-white">Expositores</a>
+      <a href="#faq" class="block text-sm text-gray-400 hover:text-white">FAQ</a>
+      <button class="w-full bg-[#1c1c2c] border border-gray-700 text-white px-5 py-2 rounded-lg font-semibold text-sm">Ser voluntario</button>
+      <button class="w-full bg-[#1fb58f] text-[#0c0c15] px-6 py-2 rounded-lg font-semibold text-sm">Registrarse</button>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <section id="inicio" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 text-center gap-8">
+    <div class="inline-block bg-[#1fb58f]/15 border border-[#1fb58f] text-[#1fb58f] px-4 py-2 rounded-full text-sm font-semibold">
+      🔬 FERIA STEM · CBA SANTA CRUZ
+    </div>
+
+    <!-- Countdown -->
+    <div class="flex gap-3 md:gap-6 justify-center flex-wrap">
+      <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 md:p-6 w-20 md:w-28">
+        <div id="cd-days" class="text-3xl md:text-4xl font-black text-[#1fb58f]">00</div>
+        <div class="text-xs md:text-sm text-gray-500 font-medium">Días</div>
+      </div>
+      <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 md:p-6 w-20 md:w-28">
+        <div id="cd-hours" class="text-3xl md:text-4xl font-black text-[#1fb58f]">00</div>
+        <div class="text-xs md:text-sm text-gray-500 font-medium">Horas</div>
+      </div>
+      <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 md:p-6 w-20 md:w-28">
+        <div id="cd-mins" class="text-3xl md:text-4xl font-black text-[#1fb58f]">00</div>
+        <div class="text-xs md:text-sm text-gray-500 font-medium">Min</div>
+      </div>
+      <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 md:p-6 w-20 md:w-28">
+        <div id="cd-secs" class="text-3xl md:text-4xl font-black text-[#1fb58f]">00</div>
+        <div class="text-xs md:text-sm text-gray-500 font-medium">Seg</div>
+      </div>
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-black max-w-4xl">
+      <span class="text-gray-300">{ Feria </span><span class="text-white">STEM</span><span class="text-gray-300"> }</span>
+    </h1>
+
+    <p class="text-lg md:text-xl text-[#1fb58f] font-semibold">Centro Boliviano Americano · Santa Cruz</p>
+
+    <p class="text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed">
+      Ciencia. Tecnología. Ingeniería. Matemáticas.<br/>
+      Una experiencia interactiva para todos los públicos.
+    </p>
+
+    <div class="flex gap-3 flex-wrap justify-center">
+      <div class="bg-[#117ae3]/15 border border-[#117ae3] text-[#117ae3] px-3 py-2 rounded-full text-sm font-semibold">📍 CBA Santa Cruz</div>
+      <div class="bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-3 py-2 rounded-full text-sm font-semibold">📅 Fecha por confirmar · 2025</div>
+    </div>
+
+    <div class="flex gap-4 flex-wrap justify-center pt-4">
+      <button class="bg-[#1fb58f] hover:bg-[#18a974] text-[#0c0c15] px-8 py-3 rounded-lg font-semibold transition">Registrarse al evento</button>
+      <button class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 px-8 py-3 rounded-lg font-semibold transition">Ver programa completo</button>
+    </div>
+  </section>
+
+  <!-- ============ SPONSORS ============ -->
+  <section class="bg-[#151522] px-6 py-12">
+    <div class="max-w-7xl mx-auto flex items-center gap-6 overflow-x-auto pb-2">
+      <span class="text-sm text-gray-600 font-medium whitespace-nowrap">Con el apoyo de</span>
+      <div class="bg-[#1c1c2c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 whitespace-nowrap">Patrocinador A</div>
+      <div class="bg-[#1c1c2c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 whitespace-nowrap">Patrocinador B</div>
+      <div class="bg-[#1c1c2c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 whitespace-nowrap">Patrocinador C</div>
+      <div class="bg-[#1c1c2c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 whitespace-nowrap">Patrocinador D</div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="evento" class="px-6 py-20">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+      <div class="space-y-6">
+        <div class="inline-block bg-[#1fb58f]/15 border border-[#1fb58f] text-[#1fb58f] px-4 py-2 rounded-full text-sm font-semibold">¿Qué es la Feria STEM?</div>
+        <h2 class="text-4xl md:text-5xl font-black leading-tight">Una experiencia<br/>STEM para todos</h2>
+        <p class="text-gray-400 leading-relaxed">
+          La Feria STEM del CBA es un evento de divulgación científica y tecnológica abierto a todos los públicos —desde niños hasta profesionales.
+          <br/><br/>
+          Con stands interactivos, TedTalks, talleres prácticos, observación solar y un sistema de misiones gamificado.
+        </p>
+        <div class="flex gap-3 flex-wrap">
+          <button class="bg-[#1fb58f] hover:bg-[#18a974] text-[#0c0c15] px-6 py-3 rounded-lg font-semibold transition">Bases del evento</button>
+          <button class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 px-6 py-3 rounded-lg font-semibold transition">Cronograma</button>
+        </div>
+      </div>
+
+      <div class="grid gap-4">
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-6 flex gap-4 items-center">
+          <div class="text-3xl">🎯</div>
+          <div><div class="text-2xl font-black text-[#1fb58f]">300+</div><div class="text-sm text-gray-500">Asistentes esperados</div></div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-6 flex gap-4 items-center">
+          <div class="text-3xl">🏆</div>
+          <div><div class="text-2xl font-black text-[#1fb58f]">10+</div><div class="text-sm text-gray-500">Misiones y stands</div></div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-6 flex gap-4 items-center">
+          <div class="text-3xl">🎤</div>
+          <div><div class="text-2xl font-black text-[#1fb58f]">5+</div><div class="text-sm text-gray-500">TedTalks STEM</div></div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-6 flex gap-4 items-center">
+          <div class="text-3xl">🔬</div>
+          <div><div class="text-2xl font-black text-[#1fb58f]">3+</div><div class="text-sm text-gray-500">Talleres prácticos</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AGENDA ============ -->
+  <section id="agenda" class="bg-[#151522] px-6 py-20">
+    <div class="max-w-6xl mx-auto space-y-12">
+      <div class="text-center space-y-4">
+        <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-4 py-2 rounded-full text-sm font-semibold">Programa del día</div>
+        <h2 class="text-4xl md:text-5xl font-black">Agenda del Evento</h2>
+        <p class="text-gray-400">Un día completo de experiencias STEM en el CBA</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Bloque 1 -->
+        <div class="bg-[#1c1c2c] border border-[#1fb58f]/20 rounded-xl p-6 space-y-3">
+          <div class="inline-block bg-[#1fb58f]/15 text-[#1fb58f] px-3 py-1 rounded-full text-xs font-bold">1</div>
+          <div class="text-xs text-[#1fb58f] font-semibold">09:00–10:00</div>
+          <h3 class="text-lg font-bold">Apertura & Bienvenida</h3>
+          <div class="border-t border-gray-700 pt-3 space-y-2">
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Registro de asistentes</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Palabras de apertura del CBA</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Activación del sistema de misiones</span></div>
+          </div>
+        </div>
+        <!-- Bloque 2 -->
+        <div class="bg-[#1c1c2c] border border-[#1fb58f]/20 rounded-xl p-6 space-y-3">
+          <div class="inline-block bg-[#1fb58f]/15 text-[#1fb58f] px-3 py-1 rounded-full text-xs font-bold">2</div>
+          <div class="text-xs text-[#1fb58f] font-semibold">10:00–13:00</div>
+          <h3 class="text-lg font-bold">Stands & Misiones STEM</h3>
+          <div class="border-t border-gray-700 pt-3 space-y-2">
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Recorrido por los stands</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Desafíos en cada stand (+XP)</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Observación solar</span></div>
+          </div>
+        </div>
+        <!-- Bloque 3 -->
+        <div class="bg-[#1c1c2c] border border-[#1fb58f]/20 rounded-xl p-6 space-y-3">
+          <div class="inline-block bg-[#1fb58f]/15 text-[#1fb58f] px-3 py-1 rounded-full text-xs font-bold">3</div>
+          <div class="text-xs text-[#1fb58f] font-semibold">13:00–15:00</div>
+          <h3 class="text-lg font-bold">TedTalks & Talleres</h3>
+          <div class="border-t border-gray-700 pt-3 space-y-2">
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Charlas de expertos STEM</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Talleres prácticos</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Mentoría con expositores</span></div>
+          </div>
+        </div>
+        <!-- Bloque 4 -->
+        <div class="bg-[#1c1c2c] border border-[#1fb58f]/20 rounded-xl p-6 space-y-3">
+          <div class="inline-block bg-[#1fb58f]/15 text-[#1fb58f] px-3 py-1 rounded-full text-xs font-bold">4</div>
+          <div class="text-xs text-[#1fb58f] font-semibold">15:00–17:00</div>
+          <h3 class="text-lg font-bold">Premiación & Clausura</h3>
+          <div class="border-t border-gray-700 pt-3 space-y-2">
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Ranking final de misiones</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Entrega de premios y certificados</span></div>
+            <div class="flex gap-2 text-sm text-gray-400"><div class="w-1.5 h-1.5 bg-[#1fb58f] rounded-full mt-1.5 flex-shrink-0"></div><span>Cierre oficial</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button class="bg-[#1fb58f] hover:bg-[#18a974] text-[#0c0c15] px-8 py-3 rounded-lg font-semibold transition">Ver cronograma completo →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPOSITORES ============ -->
+  <section id="expositores" class="px-6 py-20">
+    <div class="max-w-6xl mx-auto space-y-12">
+      <div class="text-center space-y-4">
+        <div class="inline-block bg-[#117ae3]/15 border border-[#117ae3] text-[#117ae3] px-4 py-2 rounded-full text-sm font-semibold">Expertos & TedTalks</div>
+        <h2 class="text-4xl md:text-5xl font-black">Conocé a los expositores</h2>
+        <p class="text-gray-400">Expertos en áreas STEM que guiarán la experiencia del evento</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 space-y-3 text-center">
+          <div class="w-16 h-16 bg-[#117ae3]/20 rounded-full mx-auto"></div>
+          <h3 class="font-bold text-sm">Expositor 1</h3>
+          <p class="text-xs text-[#1fb58f]">Área STEM</p>
+          <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-2 py-1 rounded-full text-xs font-semibold">Stand</div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 space-y-3 text-center">
+          <div class="w-16 h-16 bg-[#117ae3]/20 rounded-full mx-auto"></div>
+          <h3 class="font-bold text-sm">Expositor 2</h3>
+          <p class="text-xs text-[#1fb58f]">Área STEM</p>
+          <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-2 py-1 rounded-full text-xs font-semibold">Stand</div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 space-y-3 text-center">
+          <div class="w-16 h-16 bg-[#117ae3]/20 rounded-full mx-auto"></div>
+          <h3 class="font-bold text-sm">Expositor 3</h3>
+          <p class="text-xs text-[#1fb58f]">Área STEM</p>
+          <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-2 py-1 rounded-full text-xs font-semibold">Stand</div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 space-y-3 text-center">
+          <div class="w-16 h-16 bg-[#117ae3]/20 rounded-full mx-auto"></div>
+          <h3 class="font-bold text-sm">Expositor 4</h3>
+          <p class="text-xs text-[#1fb58f]">Área STEM</p>
+          <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-2 py-1 rounded-full text-xs font-semibold">Stand</div>
+        </div>
+        <div class="bg-[#151522] border border-gray-700 rounded-xl p-4 space-y-3 text-center">
+          <div class="w-16 h-16 bg-[#117ae3]/20 rounded-full mx-auto"></div>
+          <h3 class="font-bold text-sm">Expositor 5</h3>
+          <p class="text-xs text-[#1fb58f]">Área STEM</p>
+          <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-2 py-1 rounded-full text-xs font-semibold">Stand</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAMIFICACIÓN ============ -->
+  <section class="bg-[#151522] px-6 py-20">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <div class="space-y-6">
+        <div class="inline-block bg-[#f7bf2b]/15 border border-[#f7bf2b] text-[#f7bf2b] px-4 py-2 rounded-full text-sm font-semibold">⚡ Gamificación RPG</div>
+        <h2 class="text-4xl md:text-5xl font-black leading-tight">Sistema de<br/>Misiones & XP</h2>
+        <p class="text-gray-400 leading-relaxed">
+          Escaneá tu manilla, creá tu perfil de jugador y completá misiones en cada stand. El que más puntos acumule al final del evento gana premios especiales.
+        </p>
+        <button class="bg-[#f7bf2b] hover:bg-[#e6ad1f] text-[#0c0c15] px-8 py-3 rounded-lg font-semibold transition">¿Cómo funciona? →</button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex gap-4 items-start">
+          <div class="w-9 h-9 bg-[#f7bf2b]/15 rounded-full flex items-center justify-center flex-shrink-0"><span class="font-bold text-[#f7bf2b] text-sm">1</span></div>
+          <div><h3 class="font-bold">Escaneá tu manilla</h3><p class="text-sm text-gray-500">El QR te lleva a la web del evento</p></div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="w-9 h-9 bg-[#f7bf2b]/15 rounded-full flex items-center justify-center flex-shrink-0"><span class="font-bold text-[#f7bf2b] text-sm">2</span></div>
+          <div><h3 class="font-bold">Creá tu perfil</h3><p class="text-sm text-gray-500">Completá tu registro y recibí tu QR único</p></div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="w-9 h-9 bg-[#f7bf2b]/15 rounded-full flex items-center justify-center flex-shrink-0"><span class="font-bold text-[#f7bf2b] text-sm">3</span></div>
+          <div><h3 class="font-bold">Completá misiones</h3><p class="text-sm text-gray-500">Visitá stands, respondé desafíos y ganás XP</p></div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="w-9 h-9 bg-[#f7bf2b]/15 rounded-full flex items-center justify-center flex-shrink-0"><span class="font-bold text-[#f7bf2b] text-sm">4</span></div>
+          <div><h3 class="font-bold">Ganá premios</h3><p class="text-sm text-gray-500">Los mejores puntajes ganan al final del evento</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" class="px-6 py-20">
+    <div class="max-w-3xl mx-auto space-y-8">
+      <div class="text-center space-y-4">
+        <div class="inline-block bg-[#1fb58f]/15 border border-[#1fb58f] text-[#1fb58f] px-4 py-2 rounded-full text-sm font-semibold">Preguntas Frecuentes</div>
+        <h2 class="text-4xl md:text-5xl font-black">¿Tenés dudas?</h2>
+        <p class="text-gray-400">Aquí encontrarás las respuestas más comunes sobre la Feria STEM</p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-[#151522] border border-gray-700 rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full px-6 py-4 flex items-center justify-between hover:bg-[#1c1c2c] transition">
+            <span class="font-semibold text-left">¿Qué es la Feria STEM del CBA?</span>
+            <span class="text-[#1fb58f] text-xl transition-transform">+</span>
+          </button>
+          <div class="faq-answer px-6 text-gray-400"><p class="py-4 border-t border-gray-700">Es un evento de divulgación científica y tecnológica del Centro Boliviano Americano de Santa Cruz, abierto a todos los públicos.</p></div>
+        </div>
+
+        <div class="bg-[#151522] border border-gray-700 rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full px-6 py-4 flex items-center justify-between hover:bg-[#1c1c2c] transition">
+            <span class="font-semibold text-left">¿Tiene costo participar?</span>
+            <span class="text-[#1fb58f] text-xl transition-transform">+</span>
+          </button>
+          <div class="faq-answer px-6 text-gray-400"><p class="py-4 border-t border-gray-700">No. La participación es completamente gratuita. Solo necesitás registrarte al llegar con tu manilla QR.</p></div>
+        </div>
+
+        <div class="bg-[#151522] border border-gray-700 rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full px-6 py-4 flex items-center justify-between hover:bg-[#1c1c2c] transition">
+            <span class="font-semibold text-left">¿Quiénes pueden asistir?</span>
+            <span class="text-[#1fb58f] text-xl transition-transform">+</span>
+          </button>
+          <div class="faq-answer px-6 text-gray-400"><p class="py-4 border-t border-gray-700">Cualquier persona: niños, estudiantes, familias, ingenieros, curiosos y profesionales. El evento tiene actividades para todos los niveles.</p></div>
+        </div>
+
+        <div class="bg-[#151522] border border-gray-700 rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full px-6 py-4 flex items-center justify-between hover:bg-[#1c1c2c] transition">
+            <span class="font-semibold text-left">¿Cómo funciona el sistema de misiones?</span>
+            <span class="text-[#1fb58f] text-xl transition-transform">+</span>
+          </button>
+          <div class="faq-answer px-6 text-gray-400"><p class="py-4 border-t border-gray-700">Al registrarte, recibís un QR único. Visitá los stands, completá desafíos y acumulá puntos XP. El más puntuado gana premios.</p></div>
+        </div>
+
+        <div class="bg-[#151522] border border-gray-700 rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full px-6 py-4 flex items-center justify-between hover:bg-[#1c1c2c] transition">
+            <span class="font-semibold text-left">¿Se emite certificado de asistencia?</span>
+            <span class="text-[#1fb58f] text-xl transition-transform">+</span>
+          </button>
+          <div class="faq-answer px-6 text-gray-400"><p class="py-4 border-t border-gray-700">Sí. Al registrarte con tu número de teléfono, te enviamos el certificado digital por WhatsApp al finalizar el evento.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="bg-[#151522] border-t border-gray-800 px-6 py-12">
+    <div class="max-w-6xl mx-auto space-y-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-2">
+          <span class="text-xl font-black">STEM</span>
+          <span class="text-xl font-bold text-[#1fb58f]">×CBA</span>
+        </div>
+        <div class="flex gap-3 flex-wrap justify-center md:justify-end">
+          <a href="#" class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 transition">Instagram</a>
+          <a href="#" class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 transition">Facebook</a>
+          <a href="#" class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 transition">WhatsApp</a>
+          <a href="#" class="bg-[#1c1c2c] hover:bg-[#2a2a3c] border border-gray-700 px-4 py-2 rounded-lg text-sm text-gray-400 transition">LinkedIn</a>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+        <p>© 2025 Feria STEM – Centro Boliviano Americano Santa Cruz. Todos los derechos reservados.</p>
+        <p>Organizado por el equipo HERC × CBA</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ JAVASCRIPT ============ -->
+  <script>
+    // Menú móvil
+    function toggleMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    // Acordeón FAQ
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const icon = btn.querySelector('span:last-child');
+      answer.classList.toggle('open');
+      icon.textContent = answer.classList.contains('open') ? '−' : '+';
+    }
+
+    // Contador regresivo — cambiá esta fecha por la fecha real del evento
+    const eventDate = new Date('2025-12-31T09:00:00').getTime();
+    setInterval(() => {
+      const now = new Date().getTime();
+      const diff = eventDate - now;
+      if (diff < 0) return;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+      document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+    }, 1000);
+  </script>
+
+</body>
+</html>
