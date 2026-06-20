@@ -8,7 +8,7 @@ create table if not exists registros (
   nombre      text not null,
   email       text not null,
   telefono    text not null,
-  edad        text,
+  edad        integer,
   genero      text,
   educacion   text,
   tipo        text,
@@ -21,6 +21,7 @@ create table if not exists registros (
 alter table registros enable row level security;
 
 -- Permitimos que el formulario público (clave "anon") SOLO pueda INSERTAR.
+-- Nadie podrá leer los datos desde la web: tú los ves en el panel de Supabase.
 drop policy if exists "Permitir registro publico" on registros;
 create policy "Permitir registro publico"
   on registros
