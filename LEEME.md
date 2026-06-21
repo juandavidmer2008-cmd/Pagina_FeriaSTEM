@@ -44,6 +44,16 @@ Los registros se guardan en una base de datos **PostgreSQL** con Supabase. Todos
 
 6. Guarda. ¡Listo! Ahora cada registro se guarda en la nube.
 
+> ⚠️ **Importante (permiso de registro):** si al registrarte ves el error
+> *"new row violates row-level security policy"*, significa que falta la **política de seguridad**
+> que deja registrarse al público. Ejecuta esto en el **SQL Editor** de Supabase:
+> ```sql
+> alter table registros enable row level security;
+> drop policy if exists "Permitir registro publico" on registros;
+> create policy "Permitir registro publico" on registros for insert to anon with check (true);
+> ```
+> (Ya viene incluido en `schema.sql`; basta con volver a ejecutar ese archivo completo.)
+
 **¿Dónde veo los inscritos?**
 En Supabase → **Table Editor** → tabla `registros`. Puedes exportar a CSV con el botón **Export**.
 

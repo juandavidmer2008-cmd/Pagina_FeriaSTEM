@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feria STEM 2026 — CBA Santa Cruz</title>
-  <meta name="description" content="Feria STEM 2026 en CBA Santa Cruz: charlas estilo TEDx, stands de universidades, clubes y startups, talleres de programación y biología, y observación solar. Miércoles 30 de junio de 2026. Entrada libre." />
+  <meta name="description" content="Feria STEM 2026 en CBA Santa Cruz: charlas estilo TEDx, stands de universidades, clubes y startups, talleres de programación y biología, y observación solar. Martes 30 de junio de 2026. Entrada libre." />
   <meta property="og:title" content="Feria STEM 2026 — CBA Santa Cruz" />
   <meta property="og:description" content="Un día para vivir la ciencia, la tecnología, la ingeniería y las matemáticas aplicadas. 30 de junio de 2026, CBA Santa Cruz." />
   <meta property="og:type" content="website" />
@@ -126,7 +126,7 @@
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
         </a>
 
-        <!-- Logos institucionales: rellena logoCBA / logoAmericanSpaces en el bloque editable del JS -->
+        <!-- Logo institucional: rellena logoInstituciones en el bloque editable del JS -->
         <div id="logosInstitucionales" class="hidden lg:flex items-center gap-3 pl-3 border-l border-white/10"></div>
 
         <!-- Botón menú móvil -->
@@ -148,7 +148,12 @@
 
   <!-- ============ HERO ============ -->
   <section id="inicio" class="relative overflow-hidden hex-bg pt-28 pb-20 sm:pt-36 sm:pb-28">
-    <div class="absolute inset-0 grid-lines opacity-60" aria-hidden="true"></div>
+    <!-- Foto grupal de la 1ra edición, como fondo -->
+    <img src="foto-grupal.jpeg" alt="Foto grupal de la primera edición de la Feria STEM" class="absolute inset-0 w-full h-full object-cover object-center" />
+    <!-- Capas oscuras para que el texto resalte sobre la foto -->
+    <div class="absolute inset-0 bg-navy-950/85" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-navy-900/40 via-navy-950/70 to-navy-950" aria-hidden="true"></div>
+    <div class="absolute inset-0 grid-lines opacity-30" aria-hidden="true"></div>
     <!-- estrellas / nodos decorativos -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
       <span class="absolute top-24 left-[12%] h-1.5 w-1.5 rounded-full bg-electric-300 animate-pulse-slow"></span>
@@ -161,7 +166,7 @@
       <div class="flex flex-col items-center text-center">
         <span class="inline-flex items-center gap-2 rounded-full border border-electric/40 bg-electric/10 px-4 py-1.5 font-mono text-xs sm:text-sm text-electric-300 mb-7">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          MIÉRCOLES 30 DE JUNIO · 2026
+          MARTES 30 DE JUNIO · 2026
         </span>
 
         <p class="font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2">2DA VERSIÓN</p>
@@ -216,7 +221,7 @@
         <div class="mt-9 flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-xs sm:text-sm text-slate-300">
           <span class="inline-flex items-center gap-2">
             <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
-            09:00–12:30 · 15:00–18:00
+            09:00–12:00 · 14:30–18:00
           </span>
           <span class="inline-flex items-center gap-2">
             <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
@@ -344,7 +349,7 @@
     <div class="absolute inset-0 grid-lines opacity-50" aria-hidden="true"></div>
     <div class="relative max-w-7xl mx-auto px-5">
       <div class="text-center max-w-2xl mx-auto reveal">
-        <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Miércoles 30 de junio · 2026</span>
+        <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Martes 30 de junio · 2026</span>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Cronograma del día</h2>
         <p class="mt-4 text-slate-300 text-lg">Una jornada completa dividida en dos grandes momentos.</p>
       </div>
@@ -358,7 +363,7 @@
             </span>
             <div>
               <h3 class="font-display font-bold text-2xl text-white">Mañana</h3>
-              <p class="font-mono text-sm text-electric-300">09:00 — 12:30</p>
+              <p class="font-mono text-sm text-electric-300">09:00 — 12:00</p>
             </div>
           </div>
 
@@ -403,7 +408,7 @@
             </span>
             <div>
               <h3 class="font-display font-bold text-2xl text-white">Tarde</h3>
-              <p class="font-mono text-sm text-electric-300">15:00 — 18:00</p>
+              <p class="font-mono text-sm text-electric-300">14:30 — 18:00</p>
             </div>
           </div>
 
@@ -578,7 +583,7 @@
               </span>
               <div>
                 <h3 class="font-semibold text-white">Horario</h3>
-                <p class="text-slate-400">Miércoles 30 de junio · 09:00–12:30 y 15:00–18:00</p>
+                <p class="text-slate-400">Martes 30 de junio · 09:00–12:00 y 14:30–18:00</p>
               </div>
             </li>
             <li class="flex gap-4">
@@ -608,17 +613,35 @@
     </div>
   </section>
 
-  <!-- ============ REGISTRO ============ -->
+  <!-- ============ REGISTRO (llamado a la acción) ============ -->
   <section id="registro" class="hex-bg py-20 sm:py-28 relative overflow-hidden">
     <div class="absolute inset-0 grid-lines opacity-50" aria-hidden="true"></div>
-    <div class="relative max-w-3xl mx-auto px-5">
-      <div class="text-center reveal">
-        <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Asegura tu lugar</span>
-        <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Regístrate gratis</h2>
-        <p class="mt-4 text-slate-300 text-lg">Completa tus datos para reservar tu cupo. Te enviaremos el cronograma final y novedades del evento.</p>
+    <div class="relative max-w-3xl mx-auto px-5 text-center reveal">
+      <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Asegura tu lugar</span>
+      <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Regístrate gratis</h2>
+      <p class="mt-4 text-slate-300 text-lg">Completa tus datos en un minuto y reserva tu cupo. Te enviaremos el cronograma final y las novedades del evento.</p>
+      <button type="button" data-abrir-registro
+        class="mt-8 inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-8 py-4 font-semibold text-white cursor-pointer shadow-lg shadow-electric/30">
+        Registrarme ahora
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ MODAL DE REGISTRO ============ -->
+  <div id="registroModal" class="hidden fixed inset-0 z-[70] items-center justify-center bg-navy-950/80 backdrop-blur-sm p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="registroModalTitle">
+    <div class="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl border border-white/10 bg-navy-900 p-6 sm:p-9 shadow-2xl">
+      <button id="registroModalClose" type="button" class="absolute top-4 right-4 grid place-items-center h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer z-10" aria-label="Cerrar formulario">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <div class="text-center mb-6">
+        <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Feria STEM 2026</span>
+        <h2 id="registroModalTitle" class="font-display font-extrabold text-3xl sm:text-4xl mt-2 text-white">Regístrate gratis</h2>
+        <p class="mt-2 text-slate-300">Es rápido y gratuito. Reserva tu cupo para el martes 30 de junio.</p>
       </div>
 
-      <form id="registroForm" class="reveal mt-10 rounded-3xl border border-white/10 bg-navy-950/60 backdrop-blur-md p-6 sm:p-9 space-y-5" novalidate>
+      <form id="registroForm" class="space-y-5" novalidate>
         <div class="grid sm:grid-cols-2 gap-5">
           <div>
             <label for="nombre" class="block text-sm font-medium text-slate-200 mb-1.5">Nombre completo <span class="text-electric-300">*</span></label>
@@ -739,7 +762,7 @@
         <p id="formMsg" class="hidden text-center text-sm rounded-xl px-4 py-3" role="status" aria-live="polite"></p>
       </form>
     </div>
-  </section>
+  </div>
 
   <!-- ============ FOOTER ============ -->
   <footer class="bg-navy-950 border-t border-white/10 py-12">
@@ -786,14 +809,12 @@
     /* =========================================================
        CONFIGURACIÓN DE BASE DE DATOS (Supabase / SQL)
        ---------------------------------------------------------
-       Mientras estos valores estén vacíos, el registro funciona
-       en MODO DEMO: guarda en este navegador y permite descargar
-       un CSV. Para guardar los registros en una base de datos SQL
-       real (recomendado), sigue los pasos del archivo LEEME.md y
-       pega aquí tus 2 claves de Supabase.
+       Con estas 2 claves, los registros se guardan en tu base de
+       datos de Supabase (tabla "registros"). Si se dejan vacías,
+       el formulario solo muestra la confirmación (modo demo).
     ========================================================= */
-    const SUPABASE_URL = "";       // ej: https://xxxxxxxx.supabase.co
-    const SUPABASE_ANON_KEY = "";  // tu clave pública "anon"
+    const SUPABASE_URL = "https://nhpcavkozvpncbfwqgsh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_xxxKzI7sFQMAIB3JfiUg-w_ktZv0TKi";
     const SUPABASE_TABLE = "registros";
 
     let supa = null;
@@ -951,13 +972,36 @@
         : '<div class="text-center leading-none"><div class="font-display font-extrabold text-white text-base tracking-tight">CBA</div><div class="font-mono text-[7px] text-slate-400 tracking-[0.25em] mt-0.5">SANTA CRUZ</div></div>';
     })();
 
-    /* ---------- Botón "Registrarme a este taller" ---------- */
+    /* ---------- Modal de registro ---------- */
+    const registroModal = document.getElementById('registroModal');
+    function abrirRegistro() {
+      registroModal.classList.remove('hidden');
+      registroModal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      const primer = document.getElementById('nombre');
+      if (primer) setTimeout(() => primer.focus(), 60);
+    }
+    function cerrarRegistro() {
+      registroModal.classList.add('hidden');
+      registroModal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+    // Abrir: cualquier botón/enlace "Registrarme" (navbar, hero, móvil) y el CTA
+    document.querySelectorAll('a[href="#registro"], [data-abrir-registro]').forEach(el => {
+      el.addEventListener('click', (e) => { e.preventDefault(); abrirRegistro(); });
+    });
+    // Cerrar: botón X, clic fuera de la tarjeta o tecla Escape
+    document.getElementById('registroModalClose').addEventListener('click', cerrarRegistro);
+    registroModal.addEventListener('click', (e) => { if (e.target === registroModal) cerrarRegistro(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !registroModal.classList.contains('hidden')) cerrarRegistro(); });
+
+    /* ---------- Botón "Registrarme a este taller" (abre el modal y marca la actividad) ---------- */
     document.querySelectorAll('[data-registrar-taller]').forEach(btn => {
       btn.addEventListener('click', () => {
         const val = btn.dataset.registrarTaller;
         const cb = document.querySelector(`input[name="actividades"][value="${val}"]`);
         if (cb) cb.checked = true;
-        document.getElementById('registro').scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        abrirRegistro();
       });
     });
 
@@ -1098,8 +1142,9 @@
           // Modo demo (sin base de datos configurada): espera simulada.
           await new Promise(r => setTimeout(r, 500));
         }
-        showMsg('¡Registro confirmado! 🎉 Te esperamos el 30 de junio. Revisa tu correo para más detalles.', true);
+        showMsg('¡Registro confirmado! 🎉 Te esperamos el martes 30 de junio. Revisa tu correo para más detalles.', true);
         form.reset();
+        setTimeout(cerrarRegistro, 2800);
       } catch (err) {
         console.error(err);
         showMsg('Ocurrió un error al enviar. Inténtalo de nuevo o escríbenos por redes sociales.', false);
