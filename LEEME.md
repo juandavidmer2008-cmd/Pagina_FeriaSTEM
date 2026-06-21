@@ -57,6 +57,17 @@ Los registros se guardan en una base de datos **PostgreSQL** con Supabase. Todos
 **¿Dónde veo los inscritos?**
 En Supabase → **Table Editor** → tabla `registros`. Puedes exportar a CSV con el botón **Export**.
 
+### 🎫 Código QR y confirmación de asistencia
+Al registrarse en la **feria**, cada persona recibe en pantalla un **código QR** y puede añadir el evento a su calendario (Google Calendar o `.ics`). El día del evento, escanea ese QR: se abre `confirmar.html`, que marca su asistencia en la base de datos (columna `asistio`).
+
+> ⚠️ Para que funcione debes **volver a ejecutar `schema.sql`** (añade las columnas `codigo` / `asistio` y la función de confirmación). El QR solo sirve si la página está **publicada en internet** (no abierta con doble clic), porque se escanea desde otro celular.
+
+### 🧪 Registro de Talleres (Google Forms)
+El registro de **talleres** es aparte y abre un Google Forms. Pega la URL de tu formulario en la variable `GOOGLE_FORM_TALLERES` del `index.html` (bloque "⬇️ CONTENIDO EDITABLE"). Mientras esté vacía, el botón avisa que estará disponible pronto.
+
+### 📧 Correo automático (pendiente)
+El envío automático de correo necesita un servicio externo (EmailJS o una función de Supabase). Por ahora el QR y el calendario se muestran en pantalla. Cuando quieras, lo añadimos.
+
 ---
 
 ## 3. Dónde pegar tus imágenes y textos (listas editables)

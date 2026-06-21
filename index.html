@@ -150,9 +150,9 @@
   <section id="inicio" class="relative overflow-hidden hex-bg pt-28 pb-20 sm:pt-36 sm:pb-28">
     <!-- Foto grupal de la 1ra edición, como fondo -->
     <img src="foto-grupal.jpeg" alt="Foto grupal de la primera edición de la Feria STEM" class="absolute inset-0 w-full h-full object-cover object-center" />
-    <!-- Capas oscuras para que el texto resalte sobre la foto -->
-    <div class="absolute inset-0 bg-navy-950/85" aria-hidden="true"></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-navy-900/40 via-navy-950/70 to-navy-950" aria-hidden="true"></div>
+    <!-- Capas para que el texto resalte sin tapar tanto la foto -->
+    <div class="absolute inset-0 bg-navy-950/45" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-navy-950/25 via-navy-950/45 to-navy-950" aria-hidden="true"></div>
     <div class="absolute inset-0 grid-lines opacity-30" aria-hidden="true"></div>
     <!-- estrellas / nodos decorativos -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -635,7 +635,7 @@
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
 
-      <div class="text-center mb-6">
+      <div id="registroHeader" class="text-center mb-6">
         <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Feria STEM 2026</span>
         <h2 id="registroModalTitle" class="font-display font-extrabold text-3xl sm:text-4xl mt-2 text-white">Regístrate gratis</h2>
         <p class="mt-2 text-slate-300">Es rápido y gratuito. Reserva tu cupo para el martes 30 de junio.</p>
@@ -761,6 +761,35 @@
         <!-- Mensajes -->
         <p id="formMsg" class="hidden text-center text-sm rounded-xl px-4 py-3" role="status" aria-live="polite"></p>
       </form>
+
+      <!-- Pantalla de éxito: QR + calendario -->
+      <div id="registroExito" class="hidden text-center">
+        <div class="grid place-items-center h-14 w-14 rounded-full bg-green-500/15 text-green-400 mx-auto mb-4">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h3 class="font-display font-bold text-2xl sm:text-3xl text-white">¡Registro confirmado!</h3>
+        <p class="mt-2 text-slate-300">Guarda este código QR. Lo escanearemos en la entrada para confirmar tu asistencia.</p>
+
+        <div class="mt-5 inline-block rounded-2xl bg-white p-4 shadow-lg">
+          <img id="qrImg" alt="Tu código QR de asistencia" width="220" height="220" class="block w-[220px] h-[220px]" />
+        </div>
+        <p id="qrCodigo" class="mt-2 font-mono text-[11px] text-slate-500"></p>
+
+        <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+          <a id="btnGcal" href="#" target="_blank" rel="noopener"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-5 py-3 text-sm font-semibold text-white cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Añadir a Google Calendar
+          </a>
+          <button id="btnIcs" type="button"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/5 transition-colors duration-200 px-5 py-3 text-sm font-semibold text-white cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+            Descargar invitación (.ics)
+          </button>
+        </div>
+
+        <button id="btnCerrarExito" type="button" class="mt-6 text-sm text-slate-400 hover:text-white underline cursor-pointer">Cerrar</button>
+      </div>
     </div>
   </div>
 
@@ -872,6 +901,10 @@
     // 5) LOGO INSTITUCIONAL del navbar (CBA Santa Cruz + American Spaces, ya combinados).
     const logoInstituciones = "logocba.png";
 
+    // 6) GOOGLE FORMS del registro de TALLERES. Pega aquí el enlace de tu formulario.
+    //    Mientras esté vacío, el botón de talleres avisa que estará disponible pronto.
+    const GOOGLE_FORM_TALLERES = "";
+
     /* ===== Fin del contenido editable ===== */
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -972,7 +1005,16 @@
         : '<div class="text-center leading-none"><div class="font-display font-extrabold text-white text-base tracking-tight">CBA</div><div class="font-mono text-[7px] text-slate-400 tracking-[0.25em] mt-0.5">SANTA CRUZ</div></div>';
     })();
 
-    /* ---------- Modal de registro ---------- */
+    /* ---------- Datos del evento (para el calendario) ---------- */
+    const EVENTO = {
+      titulo: 'Feria STEM 2026 — CBA Santa Cruz',
+      detalles: 'Feria STEM 2026: charlas estilo TEDx, stands de universidades/clubes/startups, talleres y observación solar. Entrada libre.',
+      lugar: 'Calle Sucre, CBA Santa Cruz, Bolivia',
+      inicioUTC: '20260630T130000Z', // martes 30/06/2026 09:00 (Bolivia UTC-4)
+      finUTC: '20260630T220000Z',    // 18:00 (Bolivia UTC-4)
+    };
+
+    /* ---------- Modal de registro (FERIA) ---------- */
     const registroModal = document.getElementById('registroModal');
     function abrirRegistro() {
       registroModal.classList.remove('hidden');
@@ -985,6 +1027,12 @@
       registroModal.classList.add('hidden');
       registroModal.classList.remove('flex');
       document.body.style.overflow = '';
+      // volver a la vista de formulario para la próxima vez
+      document.getElementById('registroHeader').classList.remove('hidden');
+      document.getElementById('registroForm').classList.remove('hidden');
+      document.getElementById('registroExito').classList.add('hidden');
+      const msg = document.getElementById('formMsg');
+      if (msg) msg.classList.add('hidden');
     }
     // Abrir: cualquier botón/enlace "Registrarme" (navbar, hero, móvil) y el CTA
     document.querySelectorAll('a[href="#registro"], [data-abrir-registro]').forEach(el => {
@@ -992,16 +1040,55 @@
     });
     // Cerrar: botón X, clic fuera de la tarjeta o tecla Escape
     document.getElementById('registroModalClose').addEventListener('click', cerrarRegistro);
+    document.getElementById('btnCerrarExito').addEventListener('click', cerrarRegistro);
     registroModal.addEventListener('click', (e) => { if (e.target === registroModal) cerrarRegistro(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !registroModal.classList.contains('hidden')) cerrarRegistro(); });
 
-    /* ---------- Botón "Registrarme a este taller" (abre el modal y marca la actividad) ---------- */
+    /* ---------- Pantalla de éxito: QR + calendario ---------- */
+    function mostrarExito(nombre, codigo) {
+      document.getElementById('registroHeader').classList.add('hidden');
+      document.getElementById('registroForm').classList.add('hidden');
+      document.getElementById('registroExito').classList.remove('hidden');
+      // El QR lleva a la página que el organizador abre al escanear para confirmar asistencia
+      const urlConfirmacion = new URL('confirmar.html?c=' + encodeURIComponent(codigo), location.href).href;
+      document.getElementById('qrImg').src =
+        'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=' + encodeURIComponent(urlConfirmacion);
+      document.getElementById('qrCodigo').textContent = 'Código: ' + codigo;
+      // Enlace para añadir a Google Calendar
+      const g = new URL('https://calendar.google.com/calendar/render');
+      g.searchParams.set('action', 'TEMPLATE');
+      g.searchParams.set('text', EVENTO.titulo);
+      g.searchParams.set('dates', EVENTO.inicioUTC + '/' + EVENTO.finUTC);
+      g.searchParams.set('details', EVENTO.detalles);
+      g.searchParams.set('location', EVENTO.lugar);
+      document.getElementById('btnGcal').href = g.href;
+    }
+
+    /* ---------- Descargar invitación .ics ---------- */
+    document.getElementById('btnIcs').addEventListener('click', () => {
+      const ics = [
+        'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Feria STEM 2026//ES', 'CALSCALE:GREGORIAN',
+        'BEGIN:VEVENT', 'UID:feria-stem-2026@cbasantacruz',
+        'DTSTAMP:' + EVENTO.inicioUTC, 'DTSTART:' + EVENTO.inicioUTC, 'DTEND:' + EVENTO.finUTC,
+        'SUMMARY:' + EVENTO.titulo, 'DESCRIPTION:' + EVENTO.detalles, 'LOCATION:' + EVENTO.lugar,
+        'END:VEVENT', 'END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'feria-stem-2026.ics';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    /* ---------- Botón "Registrarme a este taller" → Google Forms ---------- */
     document.querySelectorAll('[data-registrar-taller]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const val = btn.dataset.registrarTaller;
-        const cb = document.querySelector(`input[name="actividades"][value="${val}"]`);
-        if (cb) cb.checked = true;
-        abrirRegistro();
+        if (GOOGLE_FORM_TALLERES) {
+          window.open(GOOGLE_FORM_TALLERES, '_blank', 'noopener');
+        } else {
+          alert('El registro de talleres estará disponible muy pronto por este medio. ¡Gracias por tu interés!');
+        }
       });
     });
 
@@ -1130,6 +1217,8 @@
         tipo: form.tipo.value,
         institucion: form.institucion.value.trim(),
         actividades: actividades,
+        codigo: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('FS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
+        asistio: false,
         creado_en: new Date().toISOString(),
       };
 
@@ -1142,9 +1231,8 @@
           // Modo demo (sin base de datos configurada): espera simulada.
           await new Promise(r => setTimeout(r, 500));
         }
-        showMsg('¡Registro confirmado! 🎉 Te esperamos el martes 30 de junio. Revisa tu correo para más detalles.', true);
+        mostrarExito(registro.nombre, registro.codigo);
         form.reset();
-        setTimeout(cerrarRegistro, 2800);
       } catch (err) {
         console.error(err);
         showMsg('Ocurrió un error al enviar. Inténtalo de nuevo o escríbenos por redes sociales.', false);
