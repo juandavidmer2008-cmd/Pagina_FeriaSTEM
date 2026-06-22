@@ -115,6 +115,15 @@
     /* Brillo radial decorativo */
     .glow { position: absolute; border-radius: 9999px; filter: blur(90px); pointer-events: none; }
 
+    /* Transiciones suaves entre bloques claro ↔ oscuro */
+    .fade-edge { position: absolute; left: 0; right: 0; height: 4rem; pointer-events: none; z-index: 1; }
+    @media (min-width: 640px) { .fade-edge { height: 5.5rem; } }
+    .fade-edge.top { top: 0; }
+    .fade-edge.bottom { bottom: 0; }
+    .fade-light-top    { background: linear-gradient(180deg, #f6f9ff 0%, rgba(246,249,255,0) 100%); }
+    .fade-light-bottom { background: linear-gradient(0deg,   #f6f9ff 0%, rgba(246,249,255,0) 100%); }
+    .fade-dark-top     { background: linear-gradient(180deg, #060d24 0%, rgba(6,13,36,0) 100%); }
+
     /* Tarjeta translúcida (glass) sobre fondos claros */
     .card-glass {
       background: rgba(255,255,255,0.72);
@@ -281,6 +290,7 @@
 
   <!-- ============ EL EVENTO ============ -->
   <section id="evento" class="sky-bg text-slate-900 py-20 sm:py-28 relative overflow-hidden">
+    <div class="fade-edge top fade-dark-top" aria-hidden="true"></div>
     <div class="glow w-[34rem] h-[34rem] -top-40 -left-40" style="background:rgba(47,92,255,0.14)" aria-hidden="true"></div>
     <div class="glow w-[28rem] h-[28rem] -bottom-32 -right-24" style="background:rgba(138,163,255,0.22)" aria-hidden="true"></div>
     <div class="relative z-10 max-w-7xl mx-auto px-5">
@@ -380,8 +390,10 @@
 
   <!-- ============ CRONOGRAMA ============ -->
   <section id="cronograma" class="hex-bg py-20 sm:py-28 relative overflow-hidden">
+    <div class="fade-edge top fade-light-top" aria-hidden="true"></div>
+    <div class="fade-edge bottom fade-light-bottom" aria-hidden="true"></div>
     <div class="absolute inset-0 grid-lines opacity-50" aria-hidden="true"></div>
-    <div class="relative max-w-7xl mx-auto px-5">
+    <div class="relative z-10 max-w-7xl mx-auto px-5">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Martes 30 de junio · 2026</span>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Cronograma del día</h2>
@@ -596,6 +608,8 @@
 
   <!-- ============ UBICACIÓN ============ -->
   <section id="ubicacion" class="deep-bg py-20 sm:py-28 relative overflow-hidden">
+    <div class="fade-edge top fade-light-top" aria-hidden="true"></div>
+    <div class="fade-edge bottom fade-light-bottom" aria-hidden="true"></div>
     <div class="glow w-[34rem] h-[34rem] -top-32 right-[-8rem]" style="background:rgba(47,92,255,0.16)" aria-hidden="true"></div>
     <div class="relative z-10 max-w-7xl mx-auto px-5">
       <div class="grid lg:grid-cols-2 gap-10 items-center">
@@ -714,8 +728,9 @@
 
   <!-- ============ REGISTRO (llamado a la acción) ============ -->
   <section id="registro" class="hex-bg py-20 sm:py-28 relative overflow-hidden">
+    <div class="fade-edge top fade-light-top" aria-hidden="true"></div>
     <div class="absolute inset-0 grid-lines opacity-50" aria-hidden="true"></div>
-    <div class="relative max-w-3xl mx-auto px-5 text-center reveal">
+    <div class="relative z-10 max-w-3xl mx-auto px-5 text-center reveal">
       <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Asegura tu lugar</span>
       <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Regístrate gratis</h2>
       <p class="mt-4 text-slate-300 text-lg">Completa tus datos en un minuto y reserva tu cupo. Te enviaremos el cronograma final y las novedades del evento.</p>
