@@ -1026,36 +1026,25 @@
     const ICON_IMG = '<svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 16l-5-5L5 20"/></svg>';
     const ICON_USER = '<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
 
-    /* ---------- Carrusel VERTICAL de fotos (columna que se desplaza) ---------- */
+    /* ---------- Carrusel VERTICAL de fotos (1 columna de tarjetas, estilo testimonios) ---------- */
     (function initCarrusel() {
       const track = document.getElementById('carruselTrack');
       if (!track) return;
 
       const slide = (src, i) => {
         const wrap = document.createElement('div');
-        wrap.className = 'shrink-0';
+        wrap.className = 'shrink-0 mb-5'; // separación entre tarjetas
         wrap.innerHTML = src
-          ? `<img src="${src}" alt="Foto ${i + 1} de la primera Feria STEM" class="w-full aspect-[4/3] object-cover rounded-2xl" loading="lazy">`
-          : `<div class="w-full aspect-[4/3] grid place-items-center bg-slate-100 text-slate-400 rounded-2xl">
+          ? `<img src="${src}" alt="Foto ${i + 1} de la primera Feria STEM" class="w-full aspect-[4/3] object-cover rounded-3xl shadow-xl shadow-navy-900/10 ring-1 ring-navy-900/5" loading="lazy">`
+          : `<div class="w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-3xl shadow-xl shadow-navy-900/10 ring-1 ring-navy-900/5">
                <div class="text-center">${ICON_IMG}<p class="font-mono text-sm mt-2">Foto ${i + 1}</p><p class="font-mono text-xs">pega la URL en "fotosFeria"</p></div>
              </div>`;
         return wrap;
       };
-      // Separador con degradado azul → blanco entre cada foto
-      const separador = () => {
-        const d = document.createElement('div');
-        d.className = 'h-2 my-4 rounded-full shrink-0';
-        d.style.background = 'linear-gradient(90deg, #2f5cff 0%, #8aa3ff 45%, #ffffff 100%)';
-        d.setAttribute('aria-hidden', 'true');
-        return d;
-      };
 
       // Dos copias idénticas para que el bucle vertical sea continuo
       for (let copia = 0; copia < 2; copia++) {
-        fotosFeria.forEach((src, i) => {
-          track.appendChild(slide(src, i));
-          track.appendChild(separador());
-        });
+        fotosFeria.forEach((src, i) => track.appendChild(slide(src, i)));
       }
     })();
 
