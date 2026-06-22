@@ -12,8 +12,6 @@
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Supabase JS SDK (para guardar registros en la base de datos SQL) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Fuentes: Exo (títulos), Roboto Mono (datos), Inter (texto) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -952,21 +950,15 @@
   <!-- ============ SCRIPTS ============ -->
   <script>
     /* =========================================================
-       CONFIGURACIÓN DE BASE DE DATOS (Supabase / SQL)
+       CONFIGURACIÓN DEL REGISTRO (Google Sheets / Apps Script)
        ---------------------------------------------------------
-       Con estas 2 claves, los registros se guardan en tu base de
-       datos de Supabase (tabla "registros"). Si se dejan vacías,
-       el formulario solo muestra la confirmación (modo demo).
+       Esta URL apunta a tu Apps Script publicado como "Aplicación web".
+       Los registros se guardan en tu Google Sheet (la hoja "Registros").
+       La asistencia se valida y marca desde "admin_asistencia.html".
+       Si se deja vacía, el formulario solo muestra la confirmación (demo).
     ========================================================= */
-    const SUPABASE_URL = "https://nhpcavkozvpncbfwqgsh.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_xxxKzI7sFQMAIB3JfiUg-w_ktZv0TKi";
-    const SUPABASE_TABLE = "registros";
-
-    let supa = null;
-    const usingSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
-    if (usingSupabase && window.supabase) {
-      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywK05HIm4jPiIdpfEzl3zrCBheVNDmjnKbRml_jhlhmC5p5voEHy5_s686IyNyemN1/exec";
+    const usingGoogleSheets = GOOGLE_SCRIPT_URL.trim() !== "";
 
     /* =========================================================
        ⬇️ CONTENIDO EDITABLE — cambia SOLO estas listas.
@@ -1145,10 +1137,9 @@
       document.getElementById('registroHeader').classList.add('hidden');
       document.getElementById('registroForm').classList.add('hidden');
       document.getElementById('registroExito').classList.remove('hidden');
-      // El QR lleva a la página que el organizador abre al escanear para confirmar asistencia
-      const urlConfirmacion = new URL('confirmar.html?c=' + encodeURIComponent(codigo), location.href).href;
+      // El QR contiene el código; el organizador lo escanea en admin_asistencia.html
       document.getElementById('qrImg').src =
-        'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=' + encodeURIComponent(urlConfirmacion);
+        'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=' + encodeURIComponent(codigo);
       document.getElementById('qrCodigo').textContent = 'Código: ' + codigo;
       // Enlace para añadir a Google Calendar
       const g = new URL('https://calendar.google.com/calendar/render');
@@ -1303,6 +1294,11 @@
       }
 
       const actividades = Array.from(form.querySelectorAll('input[name="actividades"]:checked')).map(c => c.value);
+      // Código único del QR (formato compatible con admin_asistencia.html)
+      const randomPart = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()
+        : Math.random().toString(36).slice(2, 14).toUpperCase();
+      const codigo = 'STEM26-' + randomPart;
       const registro = {
         nombre: form.nombre.value.trim(),
         email: form.email.value.trim(),
@@ -1313,21 +1309,26 @@
         tipo: form.tipo.value,
         institucion: form.institucion.value.trim(),
         actividades: actividades,
-        codigo: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('FS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
-        asistio: false,
         creado_en: new Date().toISOString(),
+        codigo_qr: codigo,
+        asistencia: 'NO',
       };
 
       setLoading(true);
       try {
-        if (usingSupabase) {
-          const { error } = await supa.from(SUPABASE_TABLE).insert([registro]);
-          if (error) throw error;
+        if (usingGoogleSheets) {
+          // Apps Script no deja leer la respuesta entre dominios: enviamos con no-cors.
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(registro),
+          });
         } else {
-          // Modo demo (sin base de datos configurada): espera simulada.
+          // Modo demo (sin Google Sheets configurado): espera simulada.
           await new Promise(r => setTimeout(r, 500));
         }
-        mostrarExito(registro.nombre, registro.codigo);
+        mostrarExito(registro.nombre, codigo);
         form.reset();
       } catch (err) {
         console.error(err);

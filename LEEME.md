@@ -13,54 +13,24 @@ Doble clic en **`index.html`** y se abre en tu navegador. No necesitas instalar 
 
 ---
 
-## 2. El registro de asistentes
+## 2. El registro de asistentes (Google Sheets)
 
-El formulario tiene **dos modos**:
+Los registros se guardan en un **Google Sheet** (tu "Excel" en la nube) mediante un **Google Apps Script** ya configurado. El flujo completo es:
 
-### 🟡 Modo demo (activo por defecto, sin configurar nada)
-- El formulario valida los datos y muestra el mensaje de **"¡Registro confirmado!"**, pero **no guarda en ningún lado**.
-- Sirve solo para probar cómo se ve y se siente. ⚠️ Para recibir inscripciones de verdad, activa el modo SQL.
-- La página es pública: el usuario final **nunca** puede ver ni descargar los registros. Esos solo los ves tú desde el panel de Supabase.
+1. La persona se **registra** en la página → sus datos van a tu Google Sheet (hoja "Registros").
+2. Recibe en pantalla un **código QR** (formato `STEM26-…`) y puede añadir el evento a su calendario.
+3. El día del evento, tú abres **`admin_asistencia.html`** y **escaneas su QR** (con la cámara) o escribes el **código manual** → se marca su **asistencia** en el mismo Google Sheet.
 
-### 🟢 Modo SQL real (recomendado — base de datos en la nube, gratis)
-Los registros se guardan en una base de datos **PostgreSQL** con Supabase. Todos en un solo lugar, visibles solo para ti y exportables a Excel. Ideal porque sirve para este año y los siguientes.
+### Configuración (ya hecha)
+La conexión está en la variable `GOOGLE_SCRIPT_URL` del `index.html` (y del `admin_asistencia.html`). Apunta a tu Apps Script publicado como *Aplicación web*. Si algún día cambias de hoja/script, actualiza esa URL en **ambos** archivos.
 
-**Pasos (10 minutos, una sola vez):**
+> Nota: el formulario envía **todos** los campos (incluye edad, género y educación). Si tu Google Sheet no muestra esas columnas, hay que añadirlas en el Apps Script. Si quieres, me pasas el código del Apps Script y lo reviso.
 
-1. Entra a **https://supabase.com** → crea una cuenta gratis → **New project**.
-   (Guarda la contraseña de la base de datos que te pida.)
-2. Cuando el proyecto esté listo, ve a **SQL Editor** (icono `</>` en el menú izquierdo) → **New query**.
-3. Abre el archivo **`schema.sql`** de esta carpeta, copia todo su contenido, pégalo y pulsa **Run**.
-   Esto crea la tabla `registros`.
-4. Ve a **Project Settings** (engranaje) → **API**. Copia:
-   - **Project URL** (algo como `https://xxxxx.supabase.co`)
-   - **anon public** key (una clave larga)
-5. Abre **`index.html`** con el Bloc de notas, busca cerca del final estas líneas y pega tus valores:
-
-   ```js
-   const SUPABASE_URL = "";       // ← pega aquí tu Project URL
-   const SUPABASE_ANON_KEY = "";  // ← pega aquí tu clave anon public
-   ```
-
-6. Guarda. ¡Listo! Ahora cada registro se guarda en la nube.
-
-> ⚠️ **Importante (permiso de registro):** si al registrarte ves el error
-> *"new row violates row-level security policy"*, significa que falta la **política de seguridad**
-> que deja registrarse al público. Ejecuta esto en el **SQL Editor** de Supabase:
-> ```sql
-> alter table registros enable row level security;
-> drop policy if exists "Permitir registro publico" on registros;
-> create policy "Permitir registro publico" on registros for insert to anon with check (true);
-> ```
-> (Ya viene incluido en `schema.sql`; basta con volver a ejecutar ese archivo completo.)
-
-**¿Dónde veo los inscritos?**
-En Supabase → **Table Editor** → tabla `registros`. Puedes exportar a CSV con el botón **Export**.
-
-### 🎫 Código QR y confirmación de asistencia
-Al registrarse en la **feria**, cada persona recibe en pantalla un **código QR** y puede añadir el evento a su calendario (Google Calendar o `.ics`). El día del evento, escanea ese QR: se abre `confirmar.html`, que marca su asistencia en la base de datos (columna `asistio`).
-
-> ⚠️ Para que funcione debes **volver a ejecutar `schema.sql`** (añade las columnas `codigo` / `asistio` y la función de confirmación). El QR solo sirve si la página está **publicada en internet** (no abierta con doble clic), porque se escanea desde otro celular.
+### El validador de asistencia — `admin_asistencia.html`
+- Es **solo para los organizadores** (tiene un login demo: usuario `admin`, contraseña `1234`).
+- Permite **escanear el QR con la cámara** o validar por **código manual**.
+- Marca la asistencia en el Google Sheet y avisa si un QR **ya fue usado**.
+- ⚠️ La cámara solo funciona si la página está **publicada en internet (https)** o se abre en `localhost`. Abierta con doble clic (file://) la cámara no enciende, pero el **código manual sí** funciona.
 
 ### 🧪 Registro de Talleres (Google Forms)
 El registro de **talleres** es aparte y abre un Google Forms. Pega la URL de tu formulario en la variable `GOOGLE_FORM_TALLERES` del `index.html` (bloque "⬇️ CONTENIDO EDITABLE"). Mientras esté vacía, el botón avisa que estará disponible pronto.
