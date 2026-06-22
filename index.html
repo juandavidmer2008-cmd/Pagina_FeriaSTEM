@@ -207,94 +207,73 @@
     </div>
   </header>
 
-  <!-- ============ HERO (video + animación de entrada estilo cine) ============ -->
-  <section id="inicio" class="relative min-h-screen flex items-center overflow-hidden bg-navy-950">
-    <!-- Video del trailer, de fondo (si no carga, se ve la foto del poster) -->
-    <video id="heroVideo" class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="foto-grupal.jpeg" aria-hidden="true">
-      <source src="trailer.mp4" type="video/mp4" />
-    </video>
-    <!-- Capas para legibilidad y transición hacia el resto de la página -->
-    <div class="absolute inset-0 bg-navy-950/55" aria-hidden="true"></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-navy-950/45 via-navy-950/30 to-navy-950" aria-hidden="true"></div>
-    <div class="absolute inset-0 grid-lines opacity-20" aria-hidden="true"></div>
+  <!-- ============ HERO (video protagonista + reveal estilo GTA) ============ -->
+  <section id="inicio" class="relative" style="height:200vh">
+    <!-- Capa fija: el video se queda en pantalla mientras deslizas el hero -->
+    <div class="sticky top-0 h-screen w-full overflow-hidden bg-navy-950">
+      <!-- Video del trailer (si no carga, se ve la foto del poster) -->
+      <video id="heroVideo" class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="foto-grupal.jpeg" aria-hidden="true">
+        <source src="trailer.mp4" type="video/mp4" />
+      </video>
+      <!-- Oscurecimiento que crece al deslizar (lo controla el JS) -->
+      <div id="heroOverlay" class="absolute inset-0 bg-navy-950 pointer-events-none" style="opacity:0" aria-hidden="true"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-navy-950/10 via-transparent to-navy-950/70 pointer-events-none" aria-hidden="true"></div>
 
-    <div class="relative z-10 w-full max-w-7xl mx-auto px-5 py-28 sm:py-32">
-      <div class="flex flex-col items-center text-center">
-        <span class="hero-anim inline-flex items-center gap-2 rounded-full border border-white/25 bg-electric px-5 py-2 font-body font-normal text-xs sm:text-sm text-white shadow-lg shadow-electric/30 mb-7" style="animation-delay:.2s">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          MARTES 30 DE JUNIO · 2026
-        </span>
-
-        <p class="hero-anim font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2" style="animation-delay:.35s">2DA VERSIÓN</p>
-
-        <h1 class="hero-logo font-display font-black text-white leading-[0.85] tracking-tight" style="animation-delay:.5s">
-          <span class="block text-3xl sm:text-5xl text-slate-300 font-bold tracking-[0.2em] mb-2">FERIA</span>
-          <span class="block text-6xl sm:text-8xl lg:text-[10rem]">STEM <span class="text-electric">2026</span></span>
-        </h1>
-
-        <p class="hero-anim mt-6 font-mono text-sm sm:text-lg text-slate-300 tracking-wide" style="animation-delay:1s">
-          Ciencia · Tecnología · Ingeniería · Matemáticas
-        </p>
-
-        <p class="hero-anim mt-5 max-w-2xl text-base sm:text-lg text-slate-300/90 leading-relaxed" style="animation-delay:1.15s">
-          Un día para <span class="text-white font-semibold">ver, tocar y aplicar</span> lo STEM. Charlas inspiradoras,
-          stands interactivos de universidades, clubes y startups, talleres prácticos y observación solar.
-          Pensado para estudiantes de colegio, <span class="text-white font-semibold">abierto a todo público</span>.
-        </p>
-
-        <!-- Cuenta regresiva -->
-        <div id="countdown" class="hero-anim mt-9 grid grid-cols-4 gap-2 sm:gap-4" style="animation-delay:1.3s" role="timer" aria-label="Cuenta regresiva para el evento">
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-days" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">DÍAS</div>
-          </div>
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-hours" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">HORAS</div>
-          </div>
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-mins" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">MIN</div>
-          </div>
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-secs" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">SEG</div>
-          </div>
-        </div>
-
-        <!-- CTAs -->
-        <div class="hero-anim mt-9 flex flex-col sm:flex-row items-center gap-3" style="animation-delay:1.45s">
-          <a href="#registro" class="inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer shadow-lg shadow-electric/30">
-            Registrarme gratis
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
-          </a>
-          <a href="#cronograma" class="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/5 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer">
-            Ver cronograma
-          </a>
-        </div>
-
-        <!-- Meta info -->
-        <div class="hero-anim mt-9 flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-xs sm:text-sm text-slate-300" style="animation-delay:1.6s">
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
-            09:00–12:00 · 14:30–18:00
+      <!-- Contenido del hero: aparece encima del video al deslizar -->
+      <div id="heroContent" class="absolute inset-0 flex items-center justify-center px-5" style="opacity:0">
+        <div class="w-full max-w-5xl flex flex-col items-center text-center">
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-electric px-5 py-2 font-body font-normal text-xs sm:text-sm text-white shadow-lg shadow-electric/30 mb-6">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            MARTES 30 DE JUNIO · 2026
           </span>
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            Calle Sucre · CBA Santa Cruz, Bolivia
-          </span>
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            Entrada libre y gratuita
-          </span>
+
+          <p class="font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2">2DA VERSIÓN</p>
+
+          <h1 class="font-display font-black text-white leading-[0.85] tracking-tight">
+            <span class="block text-3xl sm:text-5xl text-slate-300 font-bold tracking-[0.2em] mb-2">FERIA</span>
+            <span class="block text-6xl sm:text-8xl lg:text-9xl">STEM <span class="text-electric">2026</span></span>
+          </h1>
+
+          <p class="mt-5 font-mono text-sm sm:text-lg text-slate-300 tracking-wide">Ciencia · Tecnología · Ingeniería · Matemáticas</p>
+
+          <!-- Cuenta regresiva -->
+          <div id="countdown" class="mt-7 grid grid-cols-4 gap-2 sm:gap-4" role="timer" aria-label="Cuenta regresiva para el evento">
+            <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
+              <div id="cd-days" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
+              <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">DÍAS</div>
+            </div>
+            <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
+              <div id="cd-hours" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
+              <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">HORAS</div>
+            </div>
+            <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
+              <div id="cd-mins" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
+              <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">MIN</div>
+            </div>
+            <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
+              <div id="cd-secs" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
+              <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">SEG</div>
+            </div>
+          </div>
+
+          <!-- CTAs -->
+          <div class="mt-7 flex flex-col sm:flex-row items-center gap-3">
+            <a href="#registro" class="inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer shadow-lg shadow-electric/30">
+              Registrarme gratis
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
+            </a>
+            <a href="#cronograma" class="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/5 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer">
+              Ver cronograma
+            </a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Indicador "desliza" -->
-    <div id="scrollHint" class="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/70 transition-opacity duration-500" aria-hidden="true">
-      <span class="font-mono text-[10px] tracking-[0.3em]">DESLIZA</span>
-      <svg class="w-5 h-5 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7-7-7M12 21V3"/></svg>
+      <!-- Indicador "desliza" -->
+      <div id="scrollHint" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/80 transition-opacity duration-300">
+        <span class="font-mono text-[10px] tracking-[0.3em]">DESLIZA</span>
+        <svg class="w-6 h-6 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7-7-7M12 21V3"/></svg>
+      </div>
     </div>
   </section>
 
@@ -1265,11 +1244,23 @@
     tick();
     setInterval(tick, 1000);
 
-    /* ---------- Indicador "desliza": se desvanece al hacer scroll ---------- */
-    (function initScrollHint() {
+    /* ---------- Hero estilo GTA: el contenido aparece al deslizar sobre el video ---------- */
+    (function initHeroReveal() {
+      const content = document.getElementById('heroContent');
+      const overlay = document.getElementById('heroOverlay');
       const hint = document.getElementById('scrollHint');
-      if (!hint) return;
-      const onScroll = () => { hint.style.opacity = window.scrollY > 80 ? '0' : '0.7'; };
+      if (!content) return;
+      const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (rm) { content.style.opacity = '1'; content.style.transform = 'none'; if (hint) hint.style.display = 'none'; return; }
+      function onScroll() {
+        const y = window.scrollY;
+        const vh = window.innerHeight || 800;
+        const p = Math.max(0, Math.min(y / (vh * 0.7), 1)); // 0→1 en el primer ~70% del viewport
+        content.style.opacity = String(p);
+        content.style.transform = 'translateY(' + ((1 - p) * 40) + 'px)';
+        if (overlay) overlay.style.opacity = String(p * 0.55);  // el video se oscurece al aparecer el contenido
+        if (hint) hint.style.opacity = String(Math.max(0, 1 - y / 150));
+      }
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
     })();
