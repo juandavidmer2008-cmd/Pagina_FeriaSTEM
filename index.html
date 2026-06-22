@@ -80,6 +80,15 @@
     .animate-pulse-slow { animation: pulseSlow 4s ease-in-out infinite; }
     @keyframes pulseSlow { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
 
+    /* Animación de entrada del hero (estilo intro/cine) */
+    @keyframes heroIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes heroLogoIn { 0% { opacity: 0; transform: scale(1.18); filter: blur(12px); } 100% { opacity: 1; transform: scale(1); filter: blur(0); } }
+    .hero-anim { opacity: 0; animation: heroIn .8s ease forwards; }
+    .hero-logo { opacity: 0; animation: heroLogoIn 1.25s cubic-bezier(.16,.84,.34,1) forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-anim, .hero-logo { opacity: 1 !important; animation: none !important; filter: none !important; transform: none !important; }
+    }
+
     /* Marquee (datos curiosos / logos): desplazamiento horizontal continuo */
     .marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
     .marquee__track { display: flex; width: max-content; will-change: transform; }
@@ -198,48 +207,43 @@
     </div>
   </header>
 
-  <!-- ============ HERO ============ -->
-  <section id="inicio" class="relative overflow-hidden hex-bg pt-28 pb-20 sm:pt-36 sm:pb-28">
-    <!-- Foto grupal de la 1ra edición, como fondo -->
-    <img src="foto-grupal.jpeg" alt="Foto grupal de la primera edición de la Feria STEM" class="absolute inset-0 w-full h-full object-cover object-center" />
-    <!-- Capas para que el texto resalte sin tapar tanto la foto -->
-    <div class="absolute inset-0 bg-navy-950/45" aria-hidden="true"></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-navy-950/25 via-navy-950/45 to-navy-950" aria-hidden="true"></div>
-    <div class="absolute inset-0 grid-lines opacity-30" aria-hidden="true"></div>
-    <!-- estrellas / nodos decorativos -->
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <span class="absolute top-24 left-[12%] h-1.5 w-1.5 rounded-full bg-electric-300 animate-pulse-slow"></span>
-      <span class="absolute top-40 right-[18%] h-1 w-1 rounded-full bg-white/70 animate-pulse-slow"></span>
-      <span class="absolute bottom-28 left-[22%] h-1 w-1 rounded-full bg-electric-400 animate-pulse-slow"></span>
-      <span class="absolute top-1/2 right-[8%] h-2 w-2 rounded-full bg-electric/60 animate-pulse-slow"></span>
-    </div>
+  <!-- ============ HERO (video + animación de entrada estilo cine) ============ -->
+  <section id="inicio" class="relative min-h-screen flex items-center overflow-hidden bg-navy-950">
+    <!-- Video del trailer, de fondo (si no carga, se ve la foto del poster) -->
+    <video id="heroVideo" class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="foto-grupal.jpeg" aria-hidden="true">
+      <source src="trailer.mp4" type="video/mp4" />
+    </video>
+    <!-- Capas para legibilidad y transición hacia el resto de la página -->
+    <div class="absolute inset-0 bg-navy-950/55" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-navy-950/45 via-navy-950/30 to-navy-950" aria-hidden="true"></div>
+    <div class="absolute inset-0 grid-lines opacity-20" aria-hidden="true"></div>
 
-    <div class="relative max-w-7xl mx-auto px-5">
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-5 py-28 sm:py-32">
       <div class="flex flex-col items-center text-center">
-        <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-electric px-5 py-2 font-body font-normal text-xs sm:text-sm text-white shadow-lg shadow-electric/30 mb-7">
+        <span class="hero-anim inline-flex items-center gap-2 rounded-full border border-white/25 bg-electric px-5 py-2 font-body font-normal text-xs sm:text-sm text-white shadow-lg shadow-electric/30 mb-7" style="animation-delay:.2s">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           MARTES 30 DE JUNIO · 2026
         </span>
 
-        <p class="font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2">2DA VERSIÓN</p>
+        <p class="hero-anim font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2" style="animation-delay:.35s">2DA VERSIÓN</p>
 
-        <h1 class="font-display font-black text-white leading-[0.85] tracking-tight">
+        <h1 class="hero-logo font-display font-black text-white leading-[0.85] tracking-tight" style="animation-delay:.5s">
           <span class="block text-3xl sm:text-5xl text-slate-300 font-bold tracking-[0.2em] mb-2">FERIA</span>
-          <span class="block text-7xl sm:text-9xl lg:text-[11rem]">STEM <span class="text-electric">2026</span></span>
+          <span class="block text-6xl sm:text-8xl lg:text-[10rem]">STEM <span class="text-electric">2026</span></span>
         </h1>
 
-        <p class="mt-6 font-mono text-sm sm:text-lg text-slate-300 tracking-wide">
+        <p class="hero-anim mt-6 font-mono text-sm sm:text-lg text-slate-300 tracking-wide" style="animation-delay:1s">
           Ciencia · Tecnología · Ingeniería · Matemáticas
         </p>
 
-        <p class="mt-5 max-w-2xl text-base sm:text-lg text-slate-300/90 leading-relaxed">
+        <p class="hero-anim mt-5 max-w-2xl text-base sm:text-lg text-slate-300/90 leading-relaxed" style="animation-delay:1.15s">
           Un día para <span class="text-white font-semibold">ver, tocar y aplicar</span> lo STEM. Charlas inspiradoras,
           stands interactivos de universidades, clubes y startups, talleres prácticos y observación solar.
           Pensado para estudiantes de colegio, <span class="text-white font-semibold">abierto a todo público</span>.
         </p>
 
         <!-- Cuenta regresiva -->
-        <div id="countdown" class="mt-9 grid grid-cols-4 gap-2 sm:gap-4" role="timer" aria-label="Cuenta regresiva para el evento">
+        <div id="countdown" class="hero-anim mt-9 grid grid-cols-4 gap-2 sm:gap-4" style="animation-delay:1.3s" role="timer" aria-label="Cuenta regresiva para el evento">
           <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
             <div id="cd-days" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
             <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">DÍAS</div>
@@ -259,7 +263,7 @@
         </div>
 
         <!-- CTAs -->
-        <div class="mt-9 flex flex-col sm:flex-row items-center gap-3">
+        <div class="hero-anim mt-9 flex flex-col sm:flex-row items-center gap-3" style="animation-delay:1.45s">
           <a href="#registro" class="inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer shadow-lg shadow-electric/30">
             Registrarme gratis
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
@@ -270,7 +274,7 @@
         </div>
 
         <!-- Meta info -->
-        <div class="mt-9 flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-xs sm:text-sm text-slate-300">
+        <div class="hero-anim mt-9 flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-xs sm:text-sm text-slate-300" style="animation-delay:1.6s">
           <span class="inline-flex items-center gap-2">
             <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
             09:00–12:00 · 14:30–18:00
@@ -285,6 +289,12 @@
           </span>
         </div>
       </div>
+    </div>
+
+    <!-- Indicador "desliza" -->
+    <div id="scrollHint" class="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/70 transition-opacity duration-500" aria-hidden="true">
+      <span class="font-mono text-[10px] tracking-[0.3em]">DESLIZA</span>
+      <svg class="w-5 h-5 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7-7-7M12 21V3"/></svg>
     </div>
   </section>
 
@@ -1254,6 +1264,15 @@
     }
     tick();
     setInterval(tick, 1000);
+
+    /* ---------- Indicador "desliza": se desvanece al hacer scroll ---------- */
+    (function initScrollHint() {
+      const hint = document.getElementById('scrollHint');
+      if (!hint) return;
+      const onScroll = () => { hint.style.opacity = window.scrollY > 80 ? '0' : '0.7'; };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
 
     /* ---------- Animaciones al hacer scroll ---------- */
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
