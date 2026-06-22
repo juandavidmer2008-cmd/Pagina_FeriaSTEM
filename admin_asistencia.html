@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validar asistencia — Feria STEM 2026</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#060d24', 900: '#0a1230', 800: '#0d1b4c' },
+            electric: { DEFAULT: '#2f5cff', 400: '#5b7dff', 300: '#8aa3ff' },
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    input, button { font-size: 16px; }
+    body { font-family: Inter, system-ui, Arial, sans-serif; }
+    .bg-tech {
+      background-color: #0a1230;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(47,92,255,0.25), transparent 40%),
+        radial-gradient(circle at 85% 10%, rgba(47,92,255,0.18), transparent 45%),
+        linear-gradient(rgba(91,125,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,125,255,0.07) 1px, transparent 1px);
+      background-size: auto, auto, 42px 42px, 42px 42px;
+    }
+    #reader video { border-radius: 1rem; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-tech text-white">
+  <main class="mx-auto max-w-lg px-4 py-6">
+    <section class="rounded-3xl border border-white/10 bg-navy-950/75 p-5 shadow-2xl backdrop-blur">
+      <div class="text-center">
+        <div class="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-electric font-bold">CBA</div>
+        <h1 class="mt-3 text-2xl font-extrabold">Validar asistencia</h1>
+        <p class="mt-1 text-sm text-slate-300">Feria STEM 2026 · Escaneo de QR</p>
+      </div>
+
+      <div id="loginBox" class="mt-6 space-y-3">
+        <div>
+          <label class="mb-1 block text-sm text-slate-300">Usuario</label>
+          <input id="usuario" value="admin" autocomplete="username"
+            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-electric"
+            placeholder="admin" />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm text-slate-300">Contraseña</label>
+          <input id="password" type="password" autocomplete="current-password"
+            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-electric"
+            placeholder="1234" />
+        </div>
+
+        <button id="loginBtn" class="w-full rounded-xl bg-electric px-4 py-3 font-bold hover:bg-electric-400">
+          Entrar al validador
+        </button>
+
+        <p class="text-center text-xs text-slate-500">Demo: usuario admin y contraseña 1234.</p>
+      </div>
+
+      <div id="scannerBox" class="hidden mt-6">
+        <div id="reader" class="overflow-hidden rounded-2xl border border-white/10 bg-black"></div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <button id="startBtn" class="rounded-xl bg-electric px-4 py-3 text-sm font-bold hover:bg-electric-400">
+            Iniciar cámara
+          </button>
+          <button id="stopBtn" class="rounded-xl border border-white/20 px-4 py-3 text-sm font-bold hover:bg-white/10">
+            Detener
+          </button>
+        </div>
+
+        <div class="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <label class="mb-1 block text-sm text-slate-300">Código manual</label>
+          <div class="flex gap-2">
+            <input id="manualCode"
+              class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white outline-none focus:border-electric"
+              placeholder="STEM26-..." />
+            <button id="manualBtn" class="rounded-xl bg-electric px-4 py-3 text-sm font-bold">
+              Validar
+            </button>
+          </div>
+        </div>
+
+        <div id="resultBox" class="mt-4 hidden rounded-2xl p-4 text-sm"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywK05HIm4jPiIdpfEzl3zrCBheVNDmjnKbRml_jhlhmC5p5voEHy5_s686IyNyemN1/exec";
+
+    let adminUser = "";
+    let adminPass = "";
+    let html5QrCode = null;
+    let scanning = false;
+    let busy = false;
+    let lastCode = "";
+    let lastTime = 0;
+
+    const loginBox = document.getElementById("loginBox");
+    const scannerBox = document.getElementById("scannerBox");
+    const usuario = document.getElementById("usuario");
+    const password = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const manualCode = document.getElementById("manualCode");
+    const manualBtn = document.getElementById("manualBtn");
+    const resultBox = document.getElementById("resultBox");
+
+    function showResult(kind, html) {
+      resultBox.className = "mt-4 rounded-2xl p-4 text-sm";
+      if (kind === "ok") resultBox.classList.add("bg-green-500/15", "text-green-200", "border", "border-green-400/30");
+      else if (kind === "warn") resultBox.classList.add("bg-yellow-500/15", "text-yellow-100", "border", "border-yellow-400/30");
+      else resultBox.classList.add("bg-red-500/15", "text-red-200", "border", "border-red-400/30");
+      resultBox.innerHTML = html;
+      resultBox.classList.remove("hidden");
+    }
+
+    function normalizeCode(raw) {
+      let value = String(raw || "").trim();
+
+      try {
+        const url = new URL(value);
+        const codeFromUrl = url.searchParams.get("code") || url.searchParams.get("codigo");
+        if (codeFromUrl) return codeFromUrl.trim();
+      } catch (e) {}
+
+      value = value.replace(/^STEM2026[:|]/i, "").trim();
+      return value;
+    }
+
+    function jsonp(params) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "cb_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+        const url = new URL(GOOGLE_SCRIPT_URL);
+        Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+        url.searchParams.set("callback", callbackName);
+
+        const script = document.createElement("script");
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error("Tiempo agotado al conectar con Apps Script"));
+        }, 12000);
+
+        function cleanup() {
+          clearTimeout(timer);
+          script.remove();
+          delete window[callbackName];
+        }
+
+        window[callbackName] = (data) => {
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("No se pudo cargar la respuesta de Apps Script"));
+        };
+
+        script.src = url.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function validarCodigo(rawCode) {
+      const codigo = normalizeCode(rawCode);
+      if (!codigo) {
+        showResult("error", "<b>Código vacío.</b><br>Escanea un QR válido o escribe el código manualmente.");
+        return;
+      }
+
+      const now = Date.now();
+      if (codigo === lastCode && now - lastTime < 3000) return;
+      lastCode = codigo;
+      lastTime = now;
+
+      if (busy) return;
+      busy = true;
+      showResult("warn", `<b>Validando...</b><br>Código: <span class="font-mono">${codigo}</span>`);
+
+      try {
+        const res = await jsonp({
+          action: "checkin",
+          codigo,
+          usuario: adminUser,
+          password: adminPass
+        });
+
+        if (res.ok && res.already) {
+          showResult("warn", `
+            <b>Este QR ya fue usado.</b><br>
+            Nombre: <b>${res.nombre || "Sin nombre"}</b><br>
+            Código: <span class="font-mono">${codigo}</span><br>
+            Asistencia previa: ${res.asistencia_en || "registrada"}
+          `);
+        } else if (res.ok) {
+          showResult("ok", `
+            <b>Asistencia registrada ✅</b><br>
+            Nombre: <b>${res.nombre || "Sin nombre"}</b><br>
+            Tipo: ${res.tipo || "No indicado"}<br>
+            Código: <span class="font-mono">${codigo}</span>
+          `);
+        } else {
+          showResult("error", `
+            <b>No se pudo validar.</b><br>
+            ${res.error || "Código no encontrado o credenciales incorrectas."}<br>
+            Código: <span class="font-mono">${codigo}</span>
+          `);
+        }
+      } catch (err) {
+        showResult("error", `<b>Error de conexión.</b><br>${err.message}`);
+      } finally {
+        busy = false;
+      }
+    }
+
+    async function startScanner() {
+      if (scanning) return;
+      resultBox.classList.add("hidden");
+
+      try {
+        html5QrCode = html5QrCode || new Html5Qrcode("reader");
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+          decodedText => validarCodigo(decodedText),
+          () => {}
+        );
+        scanning = true;
+      } catch (err) {
+        showResult("error", `<b>No se pudo abrir la cámara.</b><br>${err.message}<br><br>Usa la validación manual.`);
+      }
+    }
+
+    async function stopScanner() {
+      if (!html5QrCode || !scanning) return;
+      try {
+        await html5QrCode.stop();
+        scanning = false;
+      } catch (e) {}
+    }
+
+    loginBtn.addEventListener("click", () => {
+      adminUser = usuario.value.trim();
+      adminPass = password.value.trim();
+
+      if (!adminUser || !adminPass) {
+        alert("Escribe usuario y contraseña.");
+        return;
+      }
+
+      loginBox.classList.add("hidden");
+      scannerBox.classList.remove("hidden");
+      startScanner();
+    });
+
+    startBtn.addEventListener("click", startScanner);
+    stopBtn.addEventListener("click", stopScanner);
+
+    manualBtn.addEventListener("click", () => validarCodigo(manualCode.value));
+    manualCode.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") validarCodigo(manualCode.value);
+    });
+  </script>
+</body>
+</html>

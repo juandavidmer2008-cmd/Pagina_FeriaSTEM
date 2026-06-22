@@ -12,6 +12,9 @@
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- QR generator para mostrar el código QR al finalizar el registro -->
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
   <!-- Fuentes: Exo (títulos), Roboto Mono (datos), Inter (texto) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -48,6 +51,8 @@
 
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; }
+    input, select, textarea, button { font-size: 16px; }
+    .safe-x { padding-left: max(1.25rem, env(safe-area-inset-left)); padding-right: max(1.25rem, env(safe-area-inset-right)); }
     .font-display { font-family: 'Exo', sans-serif; }
     .font-mono { font-family: 'Roboto Mono', monospace; }
 
@@ -149,7 +154,7 @@
 
         <h1 class="font-display font-black text-white leading-[0.85] tracking-tight">
           <span class="block text-3xl sm:text-5xl text-slate-300 font-bold tracking-[0.2em] mb-2">FERIA</span>
-          <span class="block text-7xl sm:text-9xl lg:text-[11rem]">STEM <span class="text-electric">2026</span></span>
+          <span class="block text-[3.4rem] sm:text-9xl lg:text-[11rem]">STEM <span class="text-electric">2026</span></span>
         </h1>
 
         <p class="mt-6 font-mono text-sm sm:text-lg text-slate-300 tracking-wide">
@@ -578,6 +583,30 @@
 
         <!-- Mensajes -->
         <p id="formMsg" class="hidden text-center text-sm rounded-xl px-4 py-3" role="status" aria-live="polite"></p>
+
+        <!-- QR generado después del registro -->
+        <div id="qrPanel" class="hidden rounded-2xl border border-electric/30 bg-white/10 p-5 text-center">
+          <p class="font-display text-xl font-bold text-white">Tu QR de ingreso</p>
+          <p class="mt-1 text-sm text-slate-300">Guarda este código. En la entrada lo escanearemos para marcar tu asistencia.</p>
+
+          <div class="mt-4 flex justify-center">
+            <div class="rounded-2xl bg-white p-3 shadow-lg">
+              <canvas id="qrCanvas" width="220" height="220" aria-label="Código QR de registro"></canvas>
+            </div>
+          </div>
+
+          <p class="mt-3 font-mono text-xs text-electric-300 break-all">
+            Código: <span id="qrCodeText"></span>
+          </p>
+
+          <button type="button" id="downloadQr"
+            class="mt-4 inline-flex items-center justify-center rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors">
+            Descargar QR
+          </button>
+
+          <p class="mt-3 text-xs text-slate-400">También puedes tomar captura de pantalla desde tu celular.</p>
+        </div>
+
       </form>
 
       <!-- Panel de administración (solo visible en modo demo local) -->
@@ -692,6 +721,10 @@
     const formMsg = document.getElementById('formMsg');
     const adminPanel = document.getElementById('adminPanel');
     const localCount = document.getElementById('localCount');
+    const qrPanel = document.getElementById('qrPanel');
+    const qrCanvas = document.getElementById('qrCanvas');
+    const qrCodeText = document.getElementById('qrCodeText');
+    const downloadQr = document.getElementById('downloadQr');
     const LS_KEY = 'feria_stem_registros';
 
     function showMsg(text, ok) {
@@ -705,6 +738,40 @@
       submitText.textContent = on ? 'Enviando…' : 'Confirmar mi registro';
     }
     function getLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } }
+
+    function generateQrCode() {
+      const randomPart = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()
+        : Math.random().toString(36).slice(2, 14).toUpperCase();
+      return `STEM26-${randomPart}`;
+    }
+
+    function renderQr(codigo) {
+      qrPanel.classList.remove('hidden');
+      qrCodeText.textContent = codigo;
+
+      new QRious({
+        element: qrCanvas,
+        value: codigo,
+        size: 220,
+        level: 'H',
+        background: 'white',
+        foreground: '#0a1230'
+      });
+
+      try {
+        localStorage.setItem('feria_stem_ultimo_qr', codigo);
+      } catch (e) {}
+    }
+
+    downloadQr.addEventListener('click', () => {
+      const codigo = qrCodeText.textContent || 'registro';
+      const a = document.createElement('a');
+      a.href = qrCanvas.toDataURL('image/png');
+      a.download = `qr-feria-stem-${codigo}.png`;
+      a.click();
+    });
+
     function refreshAdmin() {
       if (usingGoogleSheets) return; // en modo Google Sheets no mostramos el panel local
       const rows = getLocal();
@@ -726,6 +793,7 @@
       }
 
       const actividades = Array.from(form.querySelectorAll('input[name="actividades"]:checked')).map(c => c.value);
+      const codigoQr = generateQrCode();
       const registro = {
         nombre: form.nombre.value.trim(),
         email: form.email.value.trim(),
@@ -734,6 +802,8 @@
         institucion: form.institucion.value.trim(),
         actividades: actividades,
         creado_en: new Date().toISOString(),
+        codigo_qr: codigoQr,
+        asistencia: 'NO',
       };
 
       setLoading(true);
@@ -755,7 +825,8 @@
           rows.push(registro);
           localStorage.setItem(LS_KEY, JSON.stringify(rows));
         }
-        showMsg('¡Registro enviado! 🎉 Te esperamos el 30 de junio. Revisa tu correo para más detalles.', true);
+        showMsg('¡Registro enviado! 🎉 Guarda tu QR para ingresar el día del evento.', true);
+        renderQr(codigoQr);
         form.reset();
         refreshAdmin();
       } catch (err) {
