@@ -12,9 +12,6 @@
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Supabase JS SDK (para guardar registros en la base de datos SQL) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <!-- Fuentes: Exo (títulos), Roboto Mono (datos), Inter (texto) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -626,23 +623,17 @@
   <!-- ============ SCRIPTS ============ -->
   <script>
     /* =========================================================
-       CONFIGURACIÓN DE BASE DE DATOS (Supabase / SQL)
+       CONFIGURACIÓN DE REGISTRO (Google Sheets / Apps Script)
        ---------------------------------------------------------
-       Mientras estos valores estén vacíos, el registro funciona
-       en MODO DEMO: guarda en este navegador y permite descargar
-       un CSV. Para guardar los registros en una base de datos SQL
-       real (recomendado), sigue los pasos del archivo LEEME.md y
-       pega aquí tus 2 claves de Supabase.
-    ========================================================= */
-    const SUPABASE_URL = "";       // ej: https://xxxxxxxx.supabase.co
-    const SUPABASE_ANON_KEY = "";  // tu clave pública "anon"
-    const SUPABASE_TABLE = "registros";
+       Esta URL apunta a tu Apps Script publicado como "Aplicación web".
+       Los registros se guardarán en tu Google Sheet privado, en la hoja
+       llamada "Registros".
 
-    let supa = null;
-    const usingSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
-    if (usingSupabase && window.supabase) {
-      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
+       Si dejas GOOGLE_SCRIPT_URL vacío, el formulario funcionará en
+       MODO DEMO: guarda solo en este navegador y permite descargar CSV.
+    ========================================================= */
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywK05HIm4jPiIdpfEzl3zrCBheVNDmjnKbRml_jhlhmC5p5voEHy5_s686IyNyemN1/exec";
+    const usingGoogleSheets = GOOGLE_SCRIPT_URL.trim() !== "";
 
     /* ---------- Menú móvil ---------- */
     const menuBtn = document.getElementById('menuBtn');
@@ -715,9 +706,12 @@
     }
     function getLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } }
     function refreshAdmin() {
-      if (usingSupabase) return; // en modo SQL real no mostramos el panel local
+      if (usingGoogleSheets) return; // en modo Google Sheets no mostramos el panel local
       const rows = getLocal();
-      if (rows.length) { adminPanel.classList.remove('hidden'); localCount.textContent = rows.length; }
+      if (rows.length) {
+        adminPanel.classList.remove('hidden');
+        localCount.textContent = rows.length;
+      }
     }
     refreshAdmin();
 
@@ -744,16 +738,24 @@
 
       setLoading(true);
       try {
-        if (usingSupabase) {
-          const { error } = await supa.from(SUPABASE_TABLE).insert([registro]);
-          if (error) throw error;
+        if (usingGoogleSheets) {
+          // Apps Script no permite leer la respuesta desde otro dominio fácilmente.
+          // Por eso usamos no-cors: envía el registro a Google Sheets sin mostrar error de CORS.
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify(registro)
+          });
         } else {
           // Modo demo: guardar en este navegador
           const rows = getLocal();
           rows.push(registro);
           localStorage.setItem(LS_KEY, JSON.stringify(rows));
         }
-        showMsg('¡Registro confirmado! 🎉 Te esperamos el 30 de junio. Revisa tu correo para más detalles.', true);
+        showMsg('¡Registro enviado! 🎉 Te esperamos el 30 de junio. Revisa tu correo para más detalles.', true);
         form.reset();
         refreshAdmin();
       } catch (err) {
