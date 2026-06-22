@@ -1256,7 +1256,7 @@
       function aplicar(p) {
         content.style.opacity = String(p);
         content.style.transform = 'translateY(' + ((1 - p) * 40) + 'px)';
-        if (overlay) overlay.style.opacity = String(p * 0.55);   // el video se oscurece al aparecer el contenido
+        if (overlay) overlay.style.opacity = String(p * 0.94);   // al aparecer el contenido, el video se oscurece casi por completo (evita choque de letras)
         if (hint) hint.style.opacity = String(p >= 1 ? 0 : Math.max(0, 1 - window.scrollY / 150));
       }
       const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
