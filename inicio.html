@@ -223,6 +223,18 @@
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
       outline: 3px solid #5b7dff; outline-offset: 2px; border-radius: 4px;
     }
+
+    /* ── Scrollytelling "Así se vivió la primera edición" ── */
+    .st-step.is-active .st-num { color: #2f5cff; }
+    .st-step.is-active .st-dot { transform: scale(1); }
+    .st-step.is-active .st-card {
+      background: #2f5cff;
+      box-shadow: 0 20px 50px rgba(47,92,255,0.22);
+    }
+    .st-step.is-active .st-title { color: #fff; }
+    .st-step.is-active .st-desc  { color: rgba(255,255,255,0.82); }
+    #st-img { transition: opacity 0.32s ease; }
+    #st-img.fading { opacity: 0; }
   </style>
 </head>
 
@@ -368,10 +380,9 @@
       </div>
 
       <!-- ============================================================
-           "ASÍ SE VIVIÓ LA PRIMERA EDICIÓN" — secuencia que aparece al
-           deslizar (scroll-telling). 4 puntos, alternando imagen/texto.
-           IMÁGENES: sube los archivos con estos nombres a la raíz del
-           repositorio y se mostrarán automáticamente:
+           "ASÍ SE VIVIÓ LA PRIMERA EDICIÓN" — scrollytelling:
+           línea de tiempo vertical (izq.) + imagen pegajosa (der.)
+           IMÁGENES: sube los archivos con estos nombres a la raíz:
              evento-charlas.jpg · evento-stands.jpg
              evento-talleres.jpg · evento-observacion-solar.jpg
       ============================================================ -->
@@ -380,73 +391,111 @@
         <p class="mt-3 font-mono text-xs uppercase tracking-widest text-slate-400">Cuatro momentos que nos marcaron</p>
       </div>
 
-      <div class="mt-16 space-y-20 sm:space-y-28">
+      <div class="mt-16 lg:grid lg:grid-cols-2 lg:gap-16 lg:items-start">
 
-        <!-- 1 · Charlas (texto izquierda / imagen derecha) -->
-        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div class="reveal-x from-left">
-            <span class="font-display font-black text-electric/25 text-7xl sm:text-8xl leading-none block">01</span>
-            <h4 class="font-display font-extrabold text-3xl sm:text-4xl text-navy-900 -mt-4">Charlas</h4>
-            <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-              Charlas estilo TEDx que abrieron la jornada: voces que contaron, en primera persona, cómo se
-              vive la ciencia y la tecnología en el mundo real e inspiraron a cientos de estudiantes.
-            </p>
+        <!-- Columna izquierda: línea de tiempo con tarjetas -->
+        <div class="relative">
+          <!-- Línea vertical (solo desktop) -->
+          <div class="hidden lg:block absolute left-[1.85rem] top-3 bottom-3 w-px bg-electric/20" aria-hidden="true"></div>
+
+          <!-- 01 · Charlas -->
+          <div class="st-step py-5" data-img="evento-charlas.jpg" data-alt="Charlas de la primera Feria STEM">
+            <div class="flex items-start gap-5">
+              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
+                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">01</span>
+                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
+              </div>
+              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
+                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Charlas</h4>
+                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
+                  Charlas estilo TEDx que abrieron la jornada: voces que contaron, en primera persona, cómo se
+                  vive la ciencia y la tecnología en el mundo real e inspiraron a cientos de estudiantes.
+                </p>
+              </div>
+            </div>
+            <div class="lg:hidden mt-4 ml-[4.6rem]">
+              <img src="evento-charlas.jpg" alt="Charlas de la primera Feria STEM"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-charlas.jpg'}))"
+                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
+            </div>
           </div>
-          <div class="reveal-x from-right">
-            <img src="evento-charlas.jpg" alt="Charlas de la primera Feria STEM"
-              onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-3xl shadow-xl ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-charlas.jpg'}))"
-              class="w-full aspect-[4/3] object-cover rounded-3xl shadow-xl shadow-navy-900/10 ring-1 ring-navy-900/5" loading="lazy" />
+
+          <!-- 02 · Stands -->
+          <div class="st-step py-5" data-img="evento-stands.jpg" data-alt="Stands de la primera Feria STEM">
+            <div class="flex items-start gap-5">
+              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
+                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">02</span>
+                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
+              </div>
+              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
+                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Stands</h4>
+                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
+                  Universidades, clubes y startups llenaron el patio de stands interactivos: proyectos para tocar,
+                  experimentos en vivo y orientación vocacional para quienes están eligiendo su futuro.
+                </p>
+              </div>
+            </div>
+            <div class="lg:hidden mt-4 ml-[4.6rem]">
+              <img src="evento-stands.jpg" alt="Stands de la primera Feria STEM"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-stands.jpg'}))"
+                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
+            </div>
           </div>
+
+          <!-- 03 · Talleres -->
+          <div class="st-step py-5" data-img="evento-talleres.jpg" data-alt="Talleres de la primera Feria STEM">
+            <div class="flex items-start gap-5">
+              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
+                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">03</span>
+                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
+              </div>
+              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
+                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Talleres</h4>
+                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
+                  Talleres prácticos de programación y biología donde el público dejó de mirar y empezó a hacer:
+                  aprender haciendo, con cupos limitados y mucha curiosidad.
+                </p>
+              </div>
+            </div>
+            <div class="lg:hidden mt-4 ml-[4.6rem]">
+              <img src="evento-talleres.jpg" alt="Talleres de la primera Feria STEM"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-talleres.jpg'}))"
+                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
+            </div>
+          </div>
+
+          <!-- 04 · Observación solar -->
+          <div class="st-step py-5" data-img="evento-observacion-solar.jpg" data-alt="Observación solar de la primera Feria STEM">
+            <div class="flex items-start gap-5">
+              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
+                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">04</span>
+                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
+              </div>
+              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
+                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Observación solar</h4>
+                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
+                  Telescopios con filtros especiales para observar el Sol de forma segura: manchas solares y
+                  detalles de nuestra estrella que dejaron a más de uno sin palabras.
+                </p>
+              </div>
+            </div>
+            <div class="lg:hidden mt-4 ml-[4.6rem]">
+              <img src="evento-observacion-solar.jpg" alt="Observación solar de la primera Feria STEM"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-observacion-solar.jpg'}))"
+                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
+            </div>
+          </div>
+
         </div>
 
-        <!-- 2 · Stands (imagen izquierda / texto derecha) -->
-        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div class="reveal-x from-left order-2 lg:order-1">
-            <img src="evento-stands.jpg" alt="Stands de la primera Feria STEM"
-              onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-3xl shadow-xl ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-stands.jpg'}))"
-              class="w-full aspect-[4/3] object-cover rounded-3xl shadow-xl shadow-navy-900/10 ring-1 ring-navy-900/5" loading="lazy" />
-          </div>
-          <div class="reveal-x from-right order-1 lg:order-2">
-            <span class="font-display font-black text-electric/25 text-7xl sm:text-8xl leading-none block">02</span>
-            <h4 class="font-display font-extrabold text-3xl sm:text-4xl text-navy-900 -mt-4">Stands</h4>
-            <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-              Universidades, clubes y startups llenaron el patio de stands interactivos: proyectos para tocar,
-              experimentos en vivo y orientación vocacional para quienes están eligiendo su futuro.
-            </p>
-          </div>
-        </div>
-
-        <!-- 3 · Talleres (texto izquierda / imagen derecha) -->
-        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div class="reveal-x from-left">
-            <span class="font-display font-black text-electric/25 text-7xl sm:text-8xl leading-none block">03</span>
-            <h4 class="font-display font-extrabold text-3xl sm:text-4xl text-navy-900 -mt-4">Talleres</h4>
-            <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-              Talleres prácticos de programación y biología donde el público dejó de mirar y empezó a hacer:
-              aprender haciendo, con cupos limitados y mucha curiosidad.
-            </p>
-          </div>
-          <div class="reveal-x from-right">
-            <img src="evento-talleres.jpg" alt="Talleres de la primera Feria STEM"
-              onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-3xl shadow-xl ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-talleres.jpg'}))"
-              class="w-full aspect-[4/3] object-cover rounded-3xl shadow-xl shadow-navy-900/10 ring-1 ring-navy-900/5" loading="lazy" />
-          </div>
-        </div>
-
-        <!-- 4 · Observación solar (imagen izquierda / texto derecha) -->
-        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div class="reveal-x from-left order-2 lg:order-1">
-            <img src="evento-observacion-solar.jpg" alt="Observación solar de la primera Feria STEM"
-              onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-3xl shadow-xl ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-observacion-solar.jpg'}))"
-              class="w-full aspect-[4/3] object-cover rounded-3xl shadow-xl shadow-navy-900/10 ring-1 ring-navy-900/5" loading="lazy" />
-          </div>
-          <div class="reveal-x from-right order-1 lg:order-2">
-            <span class="font-display font-black text-electric/25 text-7xl sm:text-8xl leading-none block">04</span>
-            <h4 class="font-display font-extrabold text-3xl sm:text-4xl text-navy-900 -mt-4">Observación solar</h4>
-            <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-              Telescopios con filtros especiales para observar el Sol de forma segura: manchas solares y
-              detalles de nuestra estrella que dejaron a más de uno sin palabras.
-            </p>
+        <!-- Columna derecha: imagen pegajosa (solo desktop) -->
+        <div class="hidden lg:block">
+          <div class="sticky top-28">
+            <div class="overflow-hidden rounded-3xl shadow-2xl shadow-navy-900/15 ring-1 ring-navy-900/8">
+              <img id="st-img" src="evento-charlas.jpg" alt="Charlas de la primera Feria STEM"
+                onerror="this.style.opacity='0'"
+                class="w-full aspect-[4/3] object-cover" loading="lazy"/>
+            </div>
           </div>
         </div>
 
@@ -1510,6 +1559,35 @@
         setLoading(false);
       }
     });
+
+  /* ── Scrollytelling "Así se vivió la primera edición" ── */
+  (function(){
+    const steps = document.querySelectorAll('.st-step');
+    const stImg = document.getElementById('st-img');
+    if (!steps.length || !stImg) return;
+
+    function setActive(step) {
+      steps.forEach(s => s.classList.remove('is-active'));
+      step.classList.add('is-active');
+      const src = step.dataset.img;
+      const alt = step.dataset.alt || '';
+      stImg.classList.add('fading');
+      setTimeout(() => {
+        stImg.src = src;
+        stImg.alt = alt;
+        stImg.style.opacity = '';
+        stImg.classList.remove('fading');
+      }, 280);
+    }
+
+    setActive(steps[0]);
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) setActive(e.target); });
+    }, { threshold: 0.55, rootMargin: '-15% 0px -15% 0px' });
+
+    steps.forEach(s => io.observe(s));
+  })();
 
   </script>
 </body>
