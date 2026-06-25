@@ -235,6 +235,38 @@
     .st-step.is-active .st-desc  { color: rgba(255,255,255,0.82); }
     #st-img { transition: opacity 0.32s ease; }
     #st-img.fading { opacity: 0; }
+
+    /* ── Carrusel de stands (tabs: universidades / clubes) ── */
+    .stands-track { display: flex; will-change: transform; }
+    .stands-panel { width: 100%; flex-shrink: 0; }
+
+    .stands-tab {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase;
+      padding: 0.5rem 1.4rem; border-radius: 9999px;
+      border: 1.5px solid rgba(47,92,255,0.30); color: #64748b;
+      background: transparent; cursor: pointer;
+      transition: all .25s ease;
+    }
+    .stands-tab.active-tab {
+      background: #2f5cff; color: #fff;
+      border-color: #2f5cff;
+      box-shadow: 0 4px 16px rgba(47,92,255,0.28);
+    }
+
+    .stands-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #cbd5e1; border: none; cursor: pointer;
+      transition: background .25s, transform .25s;
+    }
+    .stands-dot.active-dot { background: #2f5cff; transform: scale(1.4); }
+
+    /* Hexágonos centrados (sin auto-scroll, estáticos dentro del slide) */
+    .hc-centered {
+      display: flex; justify-content: center;
+      padding: 20px 0 88px;
+    }
+    .hc-center-track { display: flex; justify-content: center; }
   </style>
 </head>
 
@@ -664,24 +696,41 @@
       </div>
 
       <!-- ============================================================
-           CARRUSELES EN PANAL DE ABEJA — clic en un logo para ampliarlo.
+           CARRUSEL DE STANDS — dos slides: universidades | clubes/startups.
            Edita "logosUniversidades" y "logosClubes" en el JS de abajo.
       ============================================================ -->
-
-      <!-- 1) STANDS DE UNIVERSIDADES -->
       <div class="reveal mt-16">
-        <h3 class="text-center font-display font-extrabold text-2xl sm:text-3xl text-navy-900 mb-8">Stands de universidades</h3>
-        <div class="hc-marquee">
-          <div id="honeycombUniversidades" class="hc-track"></div>
-        </div>
-      </div>
 
-      <!-- 2) STANDS DE CLUBES Y STARTUPS DE CIENCIA -->
-      <div class="reveal mt-16">
-        <h3 class="text-center font-display font-extrabold text-2xl sm:text-3xl text-navy-900 mb-8">Stands de clubes y startups de ciencia</h3>
-        <div class="hc-marquee">
-          <div id="honeycombClubes" class="hc-track"></div>
+        <!-- Tabs de navegación -->
+        <div class="flex flex-wrap justify-center gap-3 mb-10">
+          <button class="stands-tab active-tab" data-panel="0">Stands de universidades</button>
+          <button class="stands-tab" data-panel="1">Clubes y startups de ciencia</button>
         </div>
+
+        <!-- Slider -->
+        <div class="overflow-hidden">
+          <div id="standsTrack" class="stands-track" style="transition: transform .45s cubic-bezier(.4,0,.2,1)">
+            <!-- Slide 0: Universidades -->
+            <div class="stands-panel">
+              <div class="hc-centered">
+                <div id="honeycombUniversidades" class="hc-center-track"></div>
+              </div>
+            </div>
+            <!-- Slide 1: Clubes y startups -->
+            <div class="stands-panel">
+              <div class="hc-centered">
+                <div id="honeycombClubes" class="hc-center-track"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dots de navegación -->
+        <div class="flex justify-center gap-2 mt-2">
+          <button class="stands-dot active-dot" data-panel="0" aria-label="Stands de universidades"></button>
+          <button class="stands-dot" data-panel="1" aria-label="Clubes y startups de ciencia"></button>
+        </div>
+
       </div>
 
       <p class="text-center text-sm text-slate-500 mt-12">¿Tu universidad, club o startup quiere un stand? El <span class="font-semibold text-navy-800">registro de participantes abre para la siguiente versión</span> de la feria.</p>
@@ -1154,12 +1203,25 @@
         }
         return grupo;
       }
-      // Dos copias para que el desplazamiento sea continuo
-      track.appendChild(construirGrupo());
       track.appendChild(construirGrupo());
     }
     initHoneycomb('honeycombUniversidades', logosUniversidades, 'Logo de universidad');
     initHoneycomb('honeycombClubes', logosClubes, 'Logo de club o startup');
+
+    /* ── Carrusel de tabs (Universidades ↔ Clubes y startups) ── */
+    (function(){
+      const sliderTrack = document.getElementById('standsTrack');
+      const tabs = document.querySelectorAll('.stands-tab');
+      const dots = document.querySelectorAll('.stands-dot');
+      if (!sliderTrack) return;
+      function goTo(idx) {
+        sliderTrack.style.transform = 'translateX(-' + (idx * 100) + '%)';
+        tabs.forEach(function(t, i){ t.classList.toggle('active-tab', i === idx); });
+        dots.forEach(function(d, i){ d.classList.toggle('active-dot', i === idx); });
+      }
+      tabs.forEach(function(t, i){ t.addEventListener('click', function(){ goTo(i); }); });
+      dots.forEach(function(d, i){ d.addEventListener('click', function(){ goTo(i); }); });
+    })();
 
     /* ---------- Logo institucional del navbar ---------- */
     (function initLogosInstitucionales() {
