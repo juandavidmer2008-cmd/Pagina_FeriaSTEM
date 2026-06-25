@@ -236,6 +236,18 @@
     #st-img { transition: opacity 0.32s ease; }
     #st-img.fading { opacity: 0; }
 
+    /* ── "Así se vivió" sticky scroll ── */
+    #pe-img { transition: opacity 0.38s ease; }
+    #pe-num, #pe-title, #pe-desc {
+      transition: opacity 0.32s ease, transform 0.32s ease;
+    }
+    .pe-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(10,18,48,0.18); border: none; cursor: pointer;
+      transition: background .3s ease, transform .3s ease;
+    }
+    .pe-dot.pe-active { background: #2f5cff; transform: scale(1.35); }
+
     /* ── Carrusel de stands (tabs: universidades / clubes) ── */
     .stands-track { display: flex; will-change: transform; }
     .stands-panel { width: 100%; flex-shrink: 0; }
@@ -321,12 +333,15 @@
   <section id="inicio" class="relative" style="height:200vh">
     <!-- Capa fija: el video se queda en pantalla mientras deslizas el hero -->
     <div class="sticky top-0 h-screen w-full overflow-hidden bg-navy-950">
-      <!-- Video del trailer (si no carga, se ve la foto del poster) -->
-      <video id="heroVideo" class="absolute inset-0 w-full h-full object-cover" autoplay muted playsinline poster="foto-grupal.jpeg" aria-hidden="true">
+      <!-- Video del trailer -->
+      <video id="heroVideo" class="absolute inset-0 w-full h-full object-cover" autoplay muted playsinline aria-hidden="true">
         <source src="trailer.mp4" type="video/mp4" />
       </video>
-      <!-- Oscurecimiento ligero que crece al deslizar (lo controla el JS).
-           Sin degradado fijo: así la imagen/video se ve mucho más nítida. -->
+      <!-- Foto del equipo: se funde al terminar el video -->
+      <img id="heroEndPhoto" src="foto-grupal.jpeg" alt="Equipo Feria STEM"
+        class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style="opacity:0; transition: opacity 1.4s ease;" aria-hidden="true"/>
+      <!-- Oscurecimiento ligero que crece al deslizar (lo controla el JS) -->
       <div id="heroOverlay" class="absolute inset-0 bg-navy-950 pointer-events-none" style="opacity:0" aria-hidden="true"></div>
 
       <!-- Contenido del hero: aparece encima del video al deslizar -->
@@ -411,127 +426,60 @@
         </p>
       </div>
 
-      <!-- ============================================================
-           "ASÍ SE VIVIÓ LA PRIMERA EDICIÓN" — scrollytelling:
-           línea de tiempo vertical (izq.) + imagen pegajosa (der.)
-           IMÁGENES: sube los archivos con estos nombres a la raíz:
-             evento-charlas.jpg · evento-stands.jpg
-             evento-talleres.jpg · evento-observacion-solar.jpg
-      ============================================================ -->
-      <div class="mt-24 text-center reveal">
-        <h3 class="font-display font-extrabold text-3xl sm:text-5xl text-navy-900">Así se vivió la <span class="text-electric">primera edición</span></h3>
-        <p class="mt-3 font-mono text-xs uppercase tracking-widest text-slate-400">Cuatro momentos que nos marcaron</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       "ASÍ SE VIVIÓ LA PRIMERA EDICIÓN" — sticky scroll a pantalla completa.
+       La sección ocupa 500vh: cada 125vh avanza un paso (01→04).
+       Imágenes: evento-charlas.jpg · evento-stands.jpg
+                 evento-talleres.jpg · evento-observacion-solar.jpg
+  ============================================================ -->
+  <section id="primera-edicion" class="sky-bg relative" style="height:500vh">
+    <div class="sticky top-0 h-screen overflow-hidden flex flex-col">
+
+      <!-- Encabezado -->
+      <div class="text-center pt-10 sm:pt-14 pb-0 px-5 shrink-0">
+        <span class="font-mono text-xs font-semibold tracking-widest text-electric uppercase">Edición 2025</span>
+        <h3 class="font-display font-extrabold text-3xl sm:text-5xl text-navy-900 mt-2">
+          Así se vivió la <span class="text-electric">primera edición</span>
+        </h3>
+        <p class="mt-2 font-mono text-xs uppercase tracking-widest text-slate-400">Cuatro momentos que nos marcaron</p>
       </div>
 
-      <div class="mt-16 lg:grid lg:grid-cols-2 lg:gap-16 lg:items-start">
+      <!-- Contenido principal centrado -->
+      <div class="flex-1 flex items-center justify-center px-5 sm:px-10 min-h-0">
+        <div class="w-full max-w-5xl mx-auto grid lg:grid-cols-2 gap-6 lg:gap-14 items-center">
 
-        <!-- Columna izquierda: línea de tiempo con tarjetas -->
-        <div class="relative">
-          <!-- Línea vertical (solo desktop) -->
-          <div class="hidden lg:block absolute left-[1.85rem] top-3 bottom-3 w-px bg-electric/20" aria-hidden="true"></div>
-
-          <!-- 01 · Charlas -->
-          <div class="st-step py-5" data-img="evento-charlas.jpg" data-alt="Charlas de la primera Feria STEM">
-            <div class="flex items-start gap-5">
-              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
-                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">01</span>
-                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
-              </div>
-              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
-                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Charlas</h4>
-                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
-                  Charlas estilo TEDx que abrieron la jornada: voces que contaron, en primera persona, cómo se
-                  vive la ciencia y la tecnología en el mundo real e inspiraron a cientos de estudiantes.
-                </p>
-              </div>
-            </div>
-            <div class="lg:hidden mt-4 ml-[4.6rem]">
-              <img src="evento-charlas.jpg" alt="Charlas de la primera Feria STEM"
-                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-charlas.jpg'}))"
-                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
-            </div>
+          <!-- Imagen -->
+          <div class="overflow-hidden rounded-3xl shadow-2xl shadow-navy-900/12 ring-1 ring-navy-900/6">
+            <img id="pe-img"
+              src="evento-charlas.jpg"
+              alt="Charlas de la primera Feria STEM"
+              onerror="this.src='foto-grupal.jpeg'"
+              class="w-full aspect-[4/3] object-cover"/>
           </div>
 
-          <!-- 02 · Stands -->
-          <div class="st-step py-5" data-img="evento-stands.jpg" data-alt="Stands de la primera Feria STEM">
-            <div class="flex items-start gap-5">
-              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
-                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">02</span>
-                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
-              </div>
-              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
-                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Stands</h4>
-                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
-                  Universidades, clubes y startups llenaron el patio de stands interactivos: proyectos para tocar,
-                  experimentos en vivo y orientación vocacional para quienes están eligiendo su futuro.
-                </p>
-              </div>
-            </div>
-            <div class="lg:hidden mt-4 ml-[4.6rem]">
-              <img src="evento-stands.jpg" alt="Stands de la primera Feria STEM"
-                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-stands.jpg'}))"
-                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
-            </div>
-          </div>
-
-          <!-- 03 · Talleres -->
-          <div class="st-step py-5" data-img="evento-talleres.jpg" data-alt="Talleres de la primera Feria STEM">
-            <div class="flex items-start gap-5">
-              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
-                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">03</span>
-                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
-              </div>
-              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
-                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Talleres</h4>
-                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
-                  Talleres prácticos de programación y biología donde el público dejó de mirar y empezó a hacer:
-                  aprender haciendo, con cupos limitados y mucha curiosidad.
-                </p>
-              </div>
-            </div>
-            <div class="lg:hidden mt-4 ml-[4.6rem]">
-              <img src="evento-talleres.jpg" alt="Talleres de la primera Feria STEM"
-                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-talleres.jpg'}))"
-                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
-            </div>
-          </div>
-
-          <!-- 04 · Observación solar -->
-          <div class="st-step py-5" data-img="evento-observacion-solar.jpg" data-alt="Observación solar de la primera Feria STEM">
-            <div class="flex items-start gap-5">
-              <div class="shrink-0 w-[3.7rem] flex flex-col items-center pt-0.5 relative z-10">
-                <span class="st-num font-display font-black text-2xl text-slate-300 leading-none transition-colors duration-300">04</span>
-                <span class="st-dot mt-2 block w-2.5 h-2.5 rounded-full bg-electric transition-transform duration-300 scale-0"></span>
-              </div>
-              <div class="st-card flex-1 rounded-2xl px-6 py-5 transition-all duration-300">
-                <h4 class="st-title font-display font-extrabold text-2xl sm:text-3xl text-navy-900 transition-colors duration-300">Observación solar</h4>
-                <p class="st-desc mt-3 text-base text-slate-500 leading-relaxed transition-colors duration-300">
-                  Telescopios con filtros especiales para observar el Sol de forma segura: manchas solares y
-                  detalles de nuestra estrella que dejaron a más de uno sin palabras.
-                </p>
-              </div>
-            </div>
-            <div class="lg:hidden mt-4 ml-[4.6rem]">
-              <img src="evento-observacion-solar.jpg" alt="Observación solar de la primera Feria STEM"
-                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full aspect-[4/3] grid place-items-center bg-white text-slate-400 rounded-2xl shadow ring-1 ring-navy-900/5 font-mono text-sm',innerHTML:'📷 evento-observacion-solar.jpg'}))"
-                class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="lazy"/>
-            </div>
+          <!-- Texto -->
+          <div class="text-center lg:text-left">
+            <span id="pe-num" class="font-display font-black leading-none text-electric/15 block" style="font-size:clamp(5rem,12vw,9rem)">01</span>
+            <h4 id="pe-title" class="font-display font-extrabold text-3xl sm:text-4xl text-navy-900 -mt-3">Charlas</h4>
+            <p id="pe-desc" class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+              Charlas estilo TEDx que abrieron la jornada: voces que contaron, en primera persona, cómo se vive la ciencia y la tecnología en el mundo real e inspiraron a cientos de estudiantes.
+            </p>
           </div>
 
         </div>
-
-        <!-- Columna derecha: imagen pegajosa (solo desktop) -->
-        <div class="hidden lg:block">
-          <div class="sticky top-28">
-            <div class="overflow-hidden rounded-3xl shadow-2xl shadow-navy-900/15 ring-1 ring-navy-900/8">
-              <img id="st-img" src="evento-charlas.jpg" alt="Charlas de la primera Feria STEM"
-                onerror="this.style.opacity='0'"
-                class="w-full aspect-[4/3] object-cover" loading="lazy"/>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Dots de progreso -->
+      <div class="flex justify-center gap-3 pb-8 sm:pb-10 shrink-0">
+        <button class="pe-dot pe-active" data-step="0" aria-label="Charlas"></button>
+        <button class="pe-dot" data-step="1" aria-label="Stands"></button>
+        <button class="pe-dot" data-step="2" aria-label="Talleres"></button>
+        <button class="pe-dot" data-step="3" aria-label="Observación solar"></button>
+      </div>
+
     </div>
   </section>
 
@@ -547,80 +495,120 @@
         <p class="mt-4 text-slate-300 text-lg">Una jornada completa dividida en dos grandes momentos.</p>
       </div>
 
-      <div class="grid lg:grid-cols-2 gap-6 mt-14">
-        <!-- MAÑANA -->
-        <div class="reveal rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 sm:p-9">
-          <div class="flex items-center gap-3 mb-7">
-            <span class="grid place-items-center h-12 w-12 rounded-xl bg-electric/15 text-electric-300">
-              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M3 12h2m14 0h2M5.6 18.4l1.4-1.4m10-10l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
-            </span>
-            <div>
-              <h3 class="font-display font-bold text-2xl text-white">Mañana</h3>
-              <p class="font-mono text-sm text-electric-300">09:00 — 12:00</p>
-            </div>
+      <div class="mt-14 max-w-4xl mx-auto space-y-10">
+
+        <!-- ── MAÑANA ── -->
+        <div class="reveal flex gap-5 sm:gap-8 items-stretch">
+          <div class="shrink-0 flex items-center justify-center w-12">
+            <span class="font-display font-black text-3xl sm:text-4xl text-white/70 tracking-[0.25em] uppercase select-none"
+              style="writing-mode:vertical-rl;transform:rotate(180deg)">Mañana</span>
           </div>
+          <div class="flex-1 space-y-3">
 
-          <div class="space-y-4">
-            <!-- Banda: cada actividad muestra su descripción y la hora en vertical al costado -->
-            <div class="crono-band relative overflow-hidden rounded-2xl p-5 pr-16 shadow-lg shadow-navy-900/40 bg-gradient-to-r from-electric to-navy-700">
-              <h4 class="font-display font-extrabold text-xl sm:text-2xl text-white tracking-wide uppercase leading-tight">Apertura e inauguración</h4>
-              <p class="text-sm text-white/85 mt-1.5">Bienvenida oficial de CBA Santa Cruz y American Spaces.</p>
-              <span class="crono-hora">09:00</span>
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">09:00 AM</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Inauguración Feria STEM</h4>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-manana-01.png" alt="Inauguración" class="w-full h-full object-cover"/>
+              </div>
             </div>
 
-            <div class="crono-band relative overflow-hidden rounded-2xl p-5 pr-16 shadow-lg shadow-navy-900/40 bg-gradient-to-r from-[#6346ff] to-[#2f5cff]">
-              <h4 class="font-display font-extrabold text-xl sm:text-2xl text-white tracking-wide uppercase leading-tight">Stands dinámicos</h4>
-              <p class="text-sm text-white/85 mt-1.5">Universidades, clubes y startups abren sus stands junto con la inauguración, para explorar y probar durante toda la mañana.</p>
-              <span class="crono-hora">DESDE LA APERTURA</span>
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">09:00 — 12:00 AM</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Stands</h4>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-manana-02.png" alt="Stands" class="w-full h-full object-cover"/>
+              </div>
             </div>
 
-            <div class="crono-band relative overflow-hidden rounded-2xl p-5 pr-16 shadow-lg shadow-navy-900/40 bg-gradient-to-r from-[#ff7a18] to-[#d4530a]">
-              <h4 class="font-display font-extrabold text-xl sm:text-2xl text-white tracking-wide uppercase leading-tight">Ciclo de charlas estilo TEDx</h4>
-              <p class="text-sm text-white/85 mt-1.5">Cuatro voces inspiradoras, una por cada letra de STEM.</p>
-              <button type="button" data-toggle="charlasDetalle" aria-expanded="false" aria-controls="charlasDetalle"
-                class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-white/15 hover:bg-white/25 rounded-lg px-3 py-1.5 transition-colors cursor-pointer">
-                <span data-toggle-label>Ver charlas</span>
-                <svg class="w-4 h-4 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
-              </button>
-              <span class="crono-hora">09:30</span>
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">10:00 AM</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">STEM Talks</h4>
+                <button type="button" data-toggle="charlasDetalle" aria-expanded="false" aria-controls="charlasDetalle"
+                  class="mt-2 self-start inline-flex items-center gap-1 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1 transition-colors cursor-pointer">
+                  <span data-toggle-label>Ver charlas</span>
+                  <svg class="w-3 h-3 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+                </button>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-manana-03.png" alt="STEM Talks" class="w-full h-full object-cover"/>
+              </div>
             </div>
+
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">12:00</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Break</h4>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-manana-04.png" alt="Break" class="w-full h-full object-cover"/>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── TARDE ── -->
+        <div class="reveal flex gap-5 sm:gap-8 items-stretch">
+          <div class="shrink-0 flex items-center justify-center w-12">
+            <span class="font-display font-black text-3xl sm:text-4xl text-white/70 tracking-[0.25em] uppercase select-none"
+              style="writing-mode:vertical-rl;transform:rotate(180deg)">Tarde</span>
+          </div>
+          <div class="flex-1 space-y-3">
+
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">14:30 PM</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Reapertura Stands</h4>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-tarde-01.png" alt="Reapertura Stands" class="w-full h-full object-cover"/>
+              </div>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">15:15 — 17:00 PM</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Taller Biología / Programación</h4>
+                <button type="button" data-toggle="talleresDetalle" aria-expanded="false" aria-controls="talleresDetalle"
+                  class="mt-2 self-start inline-flex items-center gap-1 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1 transition-colors cursor-pointer">
+                  <span data-toggle-label>Ver talleres</span>
+                  <svg class="w-3 h-3 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+                </button>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-tarde-02.png" alt="Taller" class="w-full h-full object-cover"/>
+              </div>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">16:30 PM</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Observación Solar</h4>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-tarde-03.png" alt="Observación Solar" class="w-full h-full object-cover"/>
+              </div>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-white/10 bg-navy-800 flex items-stretch shadow-xl shadow-navy-900/60 min-h-[130px]">
+              <div class="flex-1 px-6 py-5 flex flex-col justify-center" style="background:linear-gradient(to right,#0d1a3a 60%,transparent)">
+                <span class="font-mono text-xs text-electric-300 tracking-widest uppercase">18:00</span>
+                <h4 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1 uppercase leading-tight">Cierre</h4>
+              </div>
+              <div class="w-[38%] shrink-0">
+                <img src="crono-tarde-04.png" alt="Cierre" class="w-full h-full object-cover"/>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- TARDE -->
-        <div class="reveal rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 sm:p-9">
-          <div class="flex items-center gap-3 mb-7">
-            <span class="grid place-items-center h-12 w-12 rounded-xl bg-electric/15 text-electric-300">
-              <!-- Icono atardecer (sol escondiéndose) -->
-              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 10V2"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m16 6-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/>
-              </svg>
-            </span>
-            <div>
-              <h3 class="font-display font-bold text-2xl text-white">Tarde</h3>
-              <p class="font-mono text-sm text-electric-300">14:30 — 18:00</p>
-            </div>
-          </div>
-
-          <div class="space-y-4">
-            <div class="crono-band relative overflow-hidden rounded-2xl p-5 pr-16 shadow-lg shadow-navy-900/40 bg-gradient-to-r from-[#1b3a8f] to-[#2f5cff]">
-              <h4 class="font-display font-extrabold text-xl sm:text-2xl text-white tracking-wide uppercase leading-tight">Talleres prácticos</h4>
-              <p class="text-sm text-white/85 mt-1.5">Taller de Biología y Taller de Programación, uno después del otro.</p>
-              <button type="button" data-toggle="talleresDetalle" aria-expanded="false" aria-controls="talleresDetalle"
-                class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-white/15 hover:bg-white/25 rounded-lg px-3 py-1.5 transition-colors cursor-pointer">
-                <span data-toggle-label>Ver talleres</span>
-                <svg class="w-4 h-4 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
-              </button>
-              <span class="crono-hora">15:15</span>
-            </div>
-
-            <div class="crono-band relative overflow-hidden rounded-2xl p-5 pr-16 shadow-lg shadow-navy-900/40 bg-gradient-to-r from-[#9333ea] to-[#6346ff]">
-              <h4 class="font-display font-extrabold text-xl sm:text-2xl text-white tracking-wide uppercase leading-tight">Observación Solar</h4>
-              <p class="text-sm text-white/85 mt-1.5">Observa el Sol de forma segura con telescopios especializados. En paralelo a los talleres.</p>
-              <span class="crono-hora">15:00</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- ============================================================
@@ -1520,20 +1508,22 @@
       }
       window.addEventListener('scroll', onScroll, { passive: true });
 
-      // El video se "corta" 5 segundos antes del final: ahí se congela y aparece el contenido.
+      // Al terminar el video: primero aparece la foto del equipo, luego el contenido.
+      const endPhoto = document.getElementById('heroEndPhoto');
       function terminarVideo() {
         if (videoTermino) return;
         videoTermino = true;
-        try { video.pause(); } catch (e) {}
-        aplicar(1);
-        if (hint) hint.style.display = 'none';
+        // 1. Funde la foto del equipo sobre el video
+        if (endPhoto) endPhoto.style.opacity = '1';
+        // 2. Pausa el video cuando la foto ya está visible
+        setTimeout(() => { try { video.pause(); } catch (e) {} }, 700);
+        // 3. Muestra el contenido (título, botones) después del fundido
+        setTimeout(() => {
+          aplicar(1);
+          if (hint) hint.style.display = 'none';
+        }, 900);
       }
       if (video) {
-        const CORTE_ANTES = 5; // segundos antes del final
-        video.addEventListener('timeupdate', () => {
-          const dur = video.duration || 0;
-          if (dur && video.currentTime >= dur - CORTE_ANTES) terminarVideo();
-        });
         video.addEventListener('ended', terminarVideo);
       }
       onScroll();
@@ -1622,33 +1612,84 @@
       }
     });
 
-  /* ── Scrollytelling "Así se vivió la primera edición" ── */
+  /* ── "Así se vivió" sticky scroll (1 paso por cada 125vh) ── */
   (function(){
-    const steps = document.querySelectorAll('.st-step');
-    const stImg = document.getElementById('st-img');
-    if (!steps.length || !stImg) return;
+    const section = document.getElementById('primera-edicion');
+    if (!section) return;
 
-    function setActive(step) {
-      steps.forEach(s => s.classList.remove('is-active'));
-      step.classList.add('is-active');
-      const src = step.dataset.img;
-      const alt = step.dataset.alt || '';
-      stImg.classList.add('fading');
-      setTimeout(() => {
-        stImg.src = src;
-        stImg.alt = alt;
-        stImg.style.opacity = '';
-        stImg.classList.remove('fading');
-      }, 280);
+    const peSteps = [
+      { num:'01', title:'Charlas',
+        img:'evento-charlas.jpg', alt:'Charlas de la primera Feria STEM',
+        desc:'Charlas estilo TEDx que abrieron la jornada: voces que contaron, en primera persona, cómo se vive la ciencia y la tecnología en el mundo real e inspiraron a cientos de estudiantes.' },
+      { num:'02', title:'Stands',
+        img:'evento-stands.jpg', alt:'Stands de la primera Feria STEM',
+        desc:'Universidades, clubes y startups llenaron el patio de stands interactivos: proyectos para tocar, experimentos en vivo y orientación vocacional para quienes están eligiendo su futuro.' },
+      { num:'03', title:'Talleres',
+        img:'evento-talleres.jpg', alt:'Talleres de la primera Feria STEM',
+        desc:'Talleres prácticos de programación y biología donde el público dejó de mirar y empezó a hacer: aprender haciendo, con cupos limitados y mucha curiosidad.' },
+      { num:'04', title:'Observación solar',
+        img:'evento-observacion-solar.jpg', alt:'Observación solar de la primera Feria STEM',
+        desc:'Telescopios con filtros especiales para observar el Sol de forma segura: manchas solares y detalles de nuestra estrella que dejaron a más de uno sin palabras.' }
+    ];
+
+    const img    = document.getElementById('pe-img');
+    const numEl  = document.getElementById('pe-num');
+    const titleEl= document.getElementById('pe-title');
+    const descEl = document.getElementById('pe-desc');
+    const dots   = document.querySelectorAll('.pe-dot');
+    let current  = -1;
+    let busy     = false;
+
+    function showStep(idx) {
+      if (idx === current || busy) return;
+      busy    = true;
+      current = idx;
+      const s = peSteps[idx];
+
+      // Fade out
+      img.style.opacity    = '0';
+      numEl.style.opacity  = '0'; numEl.style.transform  = 'translateY(8px)';
+      titleEl.style.opacity= '0'; titleEl.style.transform= 'translateY(8px)';
+      descEl.style.opacity = '0'; descEl.style.transform = 'translateY(8px)';
+
+      setTimeout(function() {
+        img.src      = s.img;
+        img.alt      = s.alt;
+        numEl.textContent   = s.num;
+        titleEl.textContent = s.title;
+        descEl.textContent  = s.desc;
+        dots.forEach(function(d,i){ d.classList.toggle('pe-active', i===idx); });
+        // Fade in
+        img.style.opacity    = '1';
+        numEl.style.opacity  = '1'; numEl.style.transform  = 'translateY(0)';
+        titleEl.style.opacity= '1'; titleEl.style.transform= 'translateY(0)';
+        descEl.style.opacity = '1'; descEl.style.transform = 'translateY(0)';
+        setTimeout(function(){ busy = false; }, 380);
+      }, 300);
     }
 
-    setActive(steps[0]);
+    function onScroll() {
+      var rect       = section.getBoundingClientRect();
+      var scrollable = section.offsetHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      var scrolled   = Math.max(0, -rect.top);
+      var progress   = Math.min(1, scrolled / scrollable);
+      var idx        = Math.min(peSteps.length - 1, Math.floor(progress * peSteps.length));
+      showStep(idx);
+    }
 
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) setActive(e.target); });
-    }, { threshold: 0.55, rootMargin: '-15% 0px -15% 0px' });
+    // Click en dots: lleva al scroll correspondiente
+    dots.forEach(function(dot, i) {
+      dot.addEventListener('click', function() {
+        var scrollable  = section.offsetHeight - window.innerHeight;
+        var targetScroll= section.offsetTop + (i / peSteps.length) * scrollable + 10;
+        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      });
+    });
 
-    steps.forEach(s => io.observe(s));
+    showStep(0);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   })();
 
   </script>
