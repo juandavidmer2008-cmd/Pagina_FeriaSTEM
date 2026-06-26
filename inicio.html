@@ -495,36 +495,35 @@
         <p class="mt-4 text-slate-300 text-lg">Una jornada completa dividida en dos grandes momentos.</p>
       </div>
 
-      <div class="mt-14 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+      <div class="mt-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
 
         <!-- ── MAÑANA ── -->
-        <div class="reveal flex gap-5 sm:gap-8 items-stretch">
-          <div class="shrink-0 flex items-center justify-center w-12">
-            <span class="font-display font-black text-3xl sm:text-4xl text-white/70 tracking-[0.25em] uppercase select-none"
+        <div class="reveal flex gap-3 sm:gap-4 items-stretch">
+          <div class="shrink-0 flex items-center justify-center w-10">
+            <span class="font-display font-black text-2xl sm:text-3xl text-white tracking-[0.2em] uppercase select-none"
               style="writing-mode:vertical-rl;transform:rotate(180deg)">Mañana</span>
           </div>
-          <div class="flex-1 space-y-1.5">
+          <div class="flex-1 space-y-1">
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44">
+            <div class="rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-manana-01.png" alt="Inauguración" class="w-full h-full object-cover block"/>
             </div>
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44">
+            <div class="rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-manana-02.png" alt="Stands" class="w-full h-full object-cover block"/>
             </div>
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 relative h-40 sm:h-44">
+            <div class="relative rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-manana-03.png" alt="STEM Talks" class="w-full h-full object-cover block"/>
-              <div class="absolute bottom-3 left-3">
-                <button type="button" data-toggle="charlasDetalle" aria-expanded="false" aria-controls="charlasDetalle"
-                  class="inline-flex items-center gap-1 text-[10px] font-semibold text-white bg-black/65 hover:bg-black/85 backdrop-blur-sm rounded px-2 py-1 transition-colors cursor-pointer">
-                  <span data-toggle-label>Ver charlas</span>
-                  <svg class="w-2.5 h-2.5 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
-                </button>
-              </div>
+              <button type="button" data-toggle="charlasDetalle" aria-expanded="false" aria-controls="charlasDetalle"
+                style="position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,0.72);border:none;border-radius:6px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;"
+                class="text-[11px] font-semibold text-white transition-opacity hover:opacity-80">
+                <span data-toggle-label>Ver charlas</span>
+                <svg class="w-3 h-3 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+              </button>
             </div>
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44">
+            <div class="rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-manana-04.png" alt="Break" class="w-full h-full object-cover block"/>
             </div>
 
@@ -532,33 +531,32 @@
         </div>
 
         <!-- ── TARDE ── -->
-        <div class="reveal flex gap-5 sm:gap-8 items-stretch">
-          <div class="shrink-0 flex items-center justify-center w-12">
-            <span class="font-display font-black text-3xl sm:text-4xl text-white/70 tracking-[0.25em] uppercase select-none"
+        <div class="reveal flex gap-3 sm:gap-4 items-stretch">
+          <div class="shrink-0 flex items-center justify-center w-10">
+            <span class="font-display font-black text-2xl sm:text-3xl text-white tracking-[0.2em] uppercase select-none"
               style="writing-mode:vertical-rl;transform:rotate(180deg)">Tarde</span>
           </div>
-          <div class="flex-1 space-y-1.5">
+          <div class="flex-1 space-y-1">
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44">
+            <div class="rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-tarde-01.png" alt="Reapertura Stands" class="w-full h-full object-cover block"/>
             </div>
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 relative h-40 sm:h-44">
+            <div class="relative rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-tarde-02.png" alt="Taller" class="w-full h-full object-cover block"/>
-              <div class="absolute bottom-3 left-3">
-                <button type="button" data-toggle="talleresDetalle" aria-expanded="false" aria-controls="talleresDetalle"
-                  class="inline-flex items-center gap-1 text-[10px] font-semibold text-white bg-black/65 hover:bg-black/85 backdrop-blur-sm rounded px-2 py-1 transition-colors cursor-pointer">
-                  <span data-toggle-label>Ver talleres</span>
-                  <svg class="w-2.5 h-2.5 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
-                </button>
-              </div>
+              <button type="button" data-toggle="talleresDetalle" aria-expanded="false" aria-controls="talleresDetalle"
+                style="position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,0.72);border:none;border-radius:6px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;"
+                class="text-[11px] font-semibold text-white transition-opacity hover:opacity-80">
+                <span data-toggle-label>Ver talleres</span>
+                <svg class="w-3 h-3 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+              </button>
             </div>
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44">
+            <div class="rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-tarde-04.png" alt="Observación Solar" class="w-full h-full object-cover block"/>
             </div>
 
-            <div class="overflow-hidden rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44">
+            <div class="rounded-2xl shadow-xl shadow-navy-900/60 h-40 sm:h-44" style="overflow:hidden">
               <img src="crono-tarde-03.png" alt="Cierre" class="w-full h-full object-cover block"/>
             </div
             </div>
