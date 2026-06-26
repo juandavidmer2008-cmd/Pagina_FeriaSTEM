@@ -13,52 +13,59 @@ Doble clic en **`index.html`** y se abre en tu navegador. No necesitas instalar 
 
 ---
 
-## 2. El registro de asistentes
+## 2. El registro de asistentes (Google Sheets)
 
-El formulario tiene **dos modos**:
+Los registros se guardan en un **Google Sheet** (tu "Excel" en la nube) mediante un **Google Apps Script** ya configurado. El flujo completo es:
 
-### 🟡 Modo demo (activo por defecto, sin configurar nada)
-- Los registros se guardan en el **navegador** de cada persona.
-- Aparece un botón para **descargar los registros en CSV** (se abre con Excel).
-- Sirve para probar. ⚠️ No usar así el día del evento, porque cada registro queda solo en el dispositivo de quien lo llenó.
+1. La persona se **registra** en la página → sus datos van a tu Google Sheet (hoja "Registros").
+2. Recibe en pantalla un **código QR** (formato `STEM26-…`) y puede añadir el evento a su calendario.
+3. El día del evento, tú abres **`admin_asistencia.html`** y **escaneas su QR** (con la cámara) o escribes el **código manual** → se marca su **asistencia** en el mismo Google Sheet.
 
-### 🟢 Modo SQL real (recomendado — base de datos en la nube, gratis)
-Los registros se guardan en una base de datos **PostgreSQL** con Supabase. Todos en un solo lugar, visibles para ti y exportables a Excel. Ideal porque sirve para este año y los siguientes.
+### Configuración (ya hecha)
+La conexión está en la variable `GOOGLE_SCRIPT_URL` del `index.html` (y del `admin_asistencia.html`). Apunta a tu Apps Script publicado como *Aplicación web*. Si algún día cambias de hoja/script, actualiza esa URL en **ambos** archivos.
 
-**Pasos (10 minutos, una sola vez):**
+> Nota: el formulario envía **todos** los campos (incluye edad, género y educación). Si tu Google Sheet no muestra esas columnas, hay que añadirlas en el Apps Script. Si quieres, me pasas el código del Apps Script y lo reviso.
 
-1. Entra a **https://supabase.com** → crea una cuenta gratis → **New project**.
-   (Guarda la contraseña de la base de datos que te pida.)
-2. Cuando el proyecto esté listo, ve a **SQL Editor** (icono `</>` en el menú izquierdo) → **New query**.
-3. Abre el archivo **`schema.sql`** de esta carpeta, copia todo su contenido, pégalo y pulsa **Run**.
-   Esto crea la tabla `registros`.
-4. Ve a **Project Settings** (engranaje) → **API**. Copia:
-   - **Project URL** (algo como `https://xxxxx.supabase.co`)
-   - **anon public** key (una clave larga)
-5. Abre **`index.html`** con el Bloc de notas, busca cerca del final estas líneas y pega tus valores:
+### El validador de asistencia — `admin_asistencia.html`
+- Es **solo para los organizadores** (tiene un login demo: usuario `admin`, contraseña `1234`).
+- Permite **escanear el QR con la cámara** o validar por **código manual**.
+- Marca la asistencia en el Google Sheet y avisa si un QR **ya fue usado**.
+- ⚠️ La cámara solo funciona si la página está **publicada en internet (https)** o se abre en `localhost`. Abierta con doble clic (file://) la cámara no enciende, pero el **código manual sí** funciona.
 
-   ```js
-   const SUPABASE_URL = "";       // ← pega aquí tu Project URL
-   const SUPABASE_ANON_KEY = "";  // ← pega aquí tu clave anon public
-   ```
+### 🧪 Registro de Talleres (Google Forms)
+El registro de **talleres** es aparte y abre un Google Forms. Pega la URL de tu formulario en la variable `GOOGLE_FORM_TALLERES` del `index.html` (bloque "⬇️ CONTENIDO EDITABLE"). Mientras esté vacía, el botón avisa que estará disponible pronto.
 
-6. Guarda. ¡Listo! Ahora cada registro se guarda en la nube.
-
-**¿Dónde veo los inscritos?**
-En Supabase → **Table Editor** → tabla `registros`. Puedes exportar a CSV con el botón **Export**.
+### 📧 Correo automático (pendiente)
+El envío automático de correo necesita un servicio externo (EmailJS o una función de Supabase). Por ahora el QR y el calendario se muestran en pantalla. Cuando quieras, lo añadimos.
 
 ---
 
-## 3. Qué falta por personalizar (placeholders)
+## 3. Dónde pegar tus imágenes y textos (listas editables)
+
+Abre `index.html` con el Bloc de notas y busca el bloque **"⬇️ CONTENIDO EDITABLE"** (cerca del final). Ahí cambias **solo esas listas** y el resto se arma solo:
+
+| Lista | Qué controla | Cómo se usa |
+|---|---|---|
+| `fotosFeria` | **Carrusel de 6 fotos** de la primera edición (sección "Qué es la feria") | Pega la dirección de cada foto entre comillas: `"fotos/foto1.jpg"` o `"https://..."`. Si la dejas vacía `""` se ve un espacio reservado. |
+| `ponentesSTEM` | Los **4 ponentes** del ciclo STEM (botón "Ver charlas") | Por cada letra completa `nombre`, `tema` y pega la `foto`. |
+| `logosParticipantes` | **Carrusel de logos de participantes** (universidades, clubes, startups) | Pega la dirección de cada logo. Al hacer clic se ven ampliados (zoom). |
+| `logosAliados` | **Carrusel de logos de aliados** | Pega la dirección de cada logo. También con zoom al hacer clic. |
+| `logoInstituciones` | **Logo institucional** del navbar, arriba a la derecha (CBA Santa Cruz + American Spaces, ya combinados) | Ya apunta a `logocba.png`. Cámbialo si quieres otra versión. |
+
+> El **logo de la Feria** (arriba a la izquierda) es la imagen `logoferiaazul.png`, puesta directamente en el `<img>` del navbar. Para cambiarlo, reemplaza ese archivo o edita el `src`. Los archivos de logo (`logocba.png`, `logoferiaazul.png`, etc.) deben estar en esta misma carpeta.
+
+> Truco para imágenes locales: crea una carpeta `fotos` dentro de `feria-stem`, pon ahí las imágenes y escribe la ruta, p.ej. `"fotos/cba.png"`.
+
+## 4. Qué falta por confirmar
 
 - **Logos reales** de CBA y American Spaces (ahora hay un recuadro "CBA" de texto).
-- **Logos de aliados** (universidades, clubes, startups) en la sección "Participantes".
-- Confirmar **horarios exactos** del cronograma (puse horas de referencia).
+- **Nombres y fotos de los ponentes** de las 4 charlas STEM.
+- **Fotos** de la primera edición y **logos** de aliados (ver tabla de arriba).
 - Verifica los **enlaces de redes sociales** del footer (los armé a partir de los @usuarios del flyer).
 
 ---
 
-## 4. Nota sobre la fecha
+## 5. Nota sobre la fecha
 
 El flyer dice **"Miércoles 30/06"**, pero el 30 de junio de 2026 cae **martes**.
 Revisa cuál es el dato correcto y, si hace falta, dime para ajustarlo en la página (aparece en el hero, el cronograma y la ubicación).
