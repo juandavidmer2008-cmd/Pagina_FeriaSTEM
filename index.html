@@ -1,783 +1,225 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Feria STEM 2026 — CBA Santa Cruz</title>
-  <meta name="description" content="Feria STEM 2026 en CBA Santa Cruz: charlas estilo TEDx, stands de universidades, clubes y startups, talleres de programación y biología, y observación solar. Miércoles 30 de junio de 2026. Entrada libre." />
-  <meta property="og:title" content="Feria STEM 2026 — CBA Santa Cruz" />
-  <meta property="og:description" content="Un día para vivir la ciencia, la tecnología, la ingeniería y las matemáticas aplicadas. 30 de junio de 2026, CBA Santa Cruz." />
-  <meta property="og:type" content="website" />
-
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase JS SDK (para guardar registros en la base de datos SQL) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Fuentes: Exo (títulos), Roboto Mono (datos), Inter (texto) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Exo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: {
-              950: '#060d24',
-              900: '#0a1230',
-              800: '#0d1b4c',
-              700: '#122a6b',
-              600: '#1b3a8f',
-            },
-            electric: {
-              DEFAULT: '#2f5cff',
-              400: '#5b7dff',
-              300: '#8aa3ff',
-            },
-            ice: '#eaf1ff',
-          },
-          fontFamily: {
-            display: ['Exo', 'system-ui', 'sans-serif'],
-            body: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['"Roboto Mono"', 'monospace'],
-          },
-        },
-      },
-    };
-  </script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feria STEM 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Exo:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .font-display { font-family: 'Exo', sans-serif; }
-    .font-mono { font-family: 'Roboto Mono', monospace; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 100vw; height: 100vh; overflow: hidden; background: #000008; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-    /* Patrón de hexágonos / constelación de fondo (estilo del flyer) */
-    .hex-bg {
-      background-color: #0a1230;
-      background-image:
-        radial-gradient(circle at 15% 20%, rgba(47,92,255,0.25), transparent 40%),
-        radial-gradient(circle at 85% 10%, rgba(47,92,255,0.18), transparent 45%),
-        radial-gradient(circle at 70% 80%, rgba(27,58,143,0.30), transparent 50%);
+    canvas#space { position: fixed; inset: 0; z-index: 0; }
+
+    .nebula { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 1; }
+
+    #flash-bg {
+      position: fixed; inset: 0; z-index: 2;
+      background: #000008;
+      animation: flashBg 0.4s ease-out 0.2s forwards;
     }
-    .grid-lines {
-      background-image:
-        linear-gradient(rgba(91,125,255,0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(91,125,255,0.07) 1px, transparent 1px);
-      background-size: 48px 48px;
-    }
-
-    /* Animación de entrada al hacer scroll */
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
-    .reveal.is-visible { opacity: 1; transform: translateY(0); }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
-      .animate-pulse-slow { animation: none !important; }
+    @keyframes flashBg {
+      0%   { background: #000008; }
+      20%  { background: #1a3a8a; }
+      40%  { background: #2f5cff; }
+      60%  { background: #0a1a4a; }
+      100% { background: transparent; }
     }
 
-    .animate-pulse-slow { animation: pulseSlow 4s ease-in-out infinite; }
-    @keyframes pulseSlow { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
-
-    /* Foco accesible */
-    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-      outline: 3px solid #5b7dff; outline-offset: 2px; border-radius: 4px;
+    #logo-wrap {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
     }
+
+    #logo-img {
+      width: clamp(220px, 38vw, 420px);
+      opacity: 0;
+      transform: scale(1.4);
+      filter: brightness(5) blur(8px);
+      transition: none;
+    }
+    #logo-img.flash {
+      transition: opacity 0.15s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1), filter 0.5s ease;
+      opacity: 1;
+      transform: scale(1);
+      filter: brightness(1) drop-shadow(0 0 60px rgba(47,92,255,0.9)) drop-shadow(0 0 120px rgba(91,125,255,0.5));
+    }
+    #logo-img.settle {
+      filter: brightness(1) drop-shadow(0 0 30px rgba(47,92,255,0.6));
+      transition: filter 1s ease;
+    }
+
+    /* Ondas */
+    .wave {
+      position: fixed;
+      top: 50%; left: 50%;
+      width: 10px; height: 10px;
+      margin: -5px 0 0 -5px;
+      border: 2px solid rgba(47,92,255,0.9);
+      border-radius: 50%;
+      z-index: 9;
+      opacity: 0;
+    }
+    .wave.go { animation: waveOut 1.2s ease-out forwards; }
+    @keyframes waveOut {
+      0%   { transform: scale(1);  opacity: .9; border-color: rgba(255,255,255,0.9); }
+      30%  { opacity: .7; border-color: rgba(91,125,255,0.8); }
+      100% { transform: scale(80); opacity: 0; border-color: rgba(47,92,255,0); }
+    }
+
+    #tagline {
+      margin-top: 1.6rem;
+      font-family: 'Exo', sans-serif;
+      font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: transparent;
+      transition: color 0.8s ease;
+    }
+    #tagline.show { color: rgba(138,163,255,0.85); }
+
+    #fecha {
+      margin-top: 0.4rem;
+      font-family: 'Exo', sans-serif;
+      font-size: clamp(0.45rem, 0.9vw, 0.65rem);
+      letter-spacing: 0.35em;
+      color: transparent;
+      transition: color 0.8s ease 0.3s;
+    }
+    #fecha.show { color: rgba(91,125,255,0.6); }
+
+    #fadeout {
+      position: fixed; inset: 0; z-index: 99;
+      background: #000008;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.7s ease;
+    }
+    #fadeout.out { opacity: 1; }
   </style>
 </head>
+<body>
 
-<body class="bg-navy-900 text-slate-100 antialiased font-body selection:bg-electric selection:text-white">
+<canvas id="space"></canvas>
+<div class="nebula" style="width:60rem;height:60rem;top:-30%;right:-20%;background:rgba(47,92,255,0.08)"></div>
+<div class="nebula" style="width:50rem;height:50rem;bottom:-25%;left:-15%;background:rgba(99,40,255,0.07)"></div>
+<div class="nebula" style="width:30rem;height:30rem;top:20%;left:10%;background:rgba(0,180,255,0.04)"></div>
 
-  <!-- ============ NAVBAR ============ -->
-  <header class="fixed top-3 left-3 right-3 z-50">
-    <nav class="max-w-7xl mx-auto flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-navy-950/70 backdrop-blur-md px-4 sm:px-6 py-3">
-      <a href="#inicio" class="flex items-center gap-2 group" aria-label="Feria STEM 2026 — inicio">
-        <img src="logoferia1.png" alt="Feria STEM 2026" class="h-24 w-auto">
-      </a>
+<div id="flash-bg"></div>
 
-      <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
-        <a href="#evento" class="hover:text-white transition-colors duration-200">El evento</a>
-        <a href="#cronograma" class="hover:text-white transition-colors duration-200">Cronograma</a>
-        <a href="#participantes" class="hover:text-white transition-colors duration-200">Participantes</a>
-        <a href="#ubicacion" class="hover:text-white transition-colors duration-200">Ubicación</a>
-      </div>
+<div class="wave" id="w1"></div>
+<div class="wave" id="w2"></div>
+<div class="wave" id="w3"></div>
+<div class="wave" id="w4"></div>
 
-      <a href="#registro" class="hidden sm:inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-4 py-2 text-sm font-semibold text-white cursor-pointer">
-        Registrarme
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
-      </a>
+<div id="logo-wrap">
+  <img id="logo-img" src="logoferia1.png" alt="Feria STEM 2026">
+  <p id="tagline">Ciencia · Tecnología · Ingeniería · Matemáticas</p>
+  <p id="fecha">2ª edición · CBA Santa Cruz · 30 de junio de 2026</p>
+</div>
 
-      <!-- Botón menú móvil -->
-      <button id="menuBtn" class="md:hidden grid place-items-center h-10 w-10 rounded-lg border border-white/10 text-white cursor-pointer" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu">
-        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <!-- Logo derecho -->
-      <img src="logocba1.png" alt="Logo derecha" class="h-20 w-auto">
-    </nav>
+<div id="fadeout"></div>
 
-    <!-- Menú móvil -->
-    <div id="mobileMenu" class="md:hidden hidden mt-2 max-w-7xl mx-auto rounded-2xl border border-white/10 bg-navy-950/95 backdrop-blur-md p-4 flex flex-col gap-1 text-slate-200">
-      <a href="#evento" class="rounded-lg px-3 py-3 hover:bg-white/5 transition-colors">El evento</a>
-      <a href="#cronograma" class="rounded-lg px-3 py-3 hover:bg-white/5 transition-colors">Cronograma</a>
-      <a href="#participantes" class="rounded-lg px-3 py-3 hover:bg-white/5 transition-colors">Participantes</a>
-      <a href="#ubicacion" class="rounded-lg px-3 py-3 hover:bg-white/5 transition-colors">Ubicación</a>
-      <a href="#registro" class="mt-1 rounded-lg px-3 py-3 bg-electric text-white font-semibold text-center">Registrarme</a>
-    </div>
-  </header>
+<script>
+(function(){
+  'use strict';
 
-  <!-- ============ HERO ============ -->
-  <section id="inicio" class="relative overflow-hidden hex-bg pt-28 pb-20 sm:pt-36 sm:pb-28">
-    <div class="absolute inset-0 grid-lines opacity-60" aria-hidden="true"></div>
-    <!-- estrellas / nodos decorativos -->
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <span class="absolute top-24 left-[12%] h-1.5 w-1.5 rounded-full bg-electric-300 animate-pulse-slow"></span>
-      <span class="absolute top-40 right-[18%] h-1 w-1 rounded-full bg-white/70 animate-pulse-slow"></span>
-      <span class="absolute bottom-28 left-[22%] h-1 w-1 rounded-full bg-electric-400 animate-pulse-slow"></span>
-      <span class="absolute top-1/2 right-[8%] h-2 w-2 rounded-full bg-electric/60 animate-pulse-slow"></span>
-    </div>
+  /* ── Stars ── */
+  const cvs = document.getElementById('space');
+  const ctx = cvs.getContext('2d');
+  function resize(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
 
-    <div class="relative max-w-7xl mx-auto px-5">
-      <div class="flex flex-col items-center text-center">
-        <span class="inline-flex items-center gap-2 rounded-full border border-electric/40 bg-electric/10 px-4 py-1.5 font-mono text-xs sm:text-sm text-electric-300 mb-7">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          MIÉRCOLES 30 DE JUNIO · 2026
-        </span>
+  const stars = Array.from({length:200}, () => ({
+    x: Math.random()*4000, y: Math.random()*3000,
+    r: Math.random()*1.5+0.2,
+    ph: Math.random()*Math.PI*2,
+    sp: Math.random()*0.008+0.003,
+    warm: Math.random() > 0.8
+  }));
 
-        <p class="font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2">2DA VERSION</p>
+  const shoots = [];
+  function addShoot(){
+    shoots.push({ x: Math.random()*cvs.width, y: Math.random()*cvs.height*0.5,
+      len: Math.random()*130+60, sp: Math.random()*8+5, op: 1,
+      angle: Math.PI/4 + (Math.random()-0.5)*0.3 });
+  }
 
-        <h1 class="font-display font-black text-white leading-[0.85] tracking-tight">
-          <span class="block text-6xl sm:text-8xl text-slate-300 font-bold tracking-[0.2em] mb-2">FERIA</span>
-          <span class="block text-7xl sm:text-9xl lg:text-[11rem]">STEM <span class="text-electric">2026</span></span>
-        </h1>
-
-        <p class="mt-6 font-mono text-sm sm:text-lg text-slate-300 tracking-wide">
-          Ciencia · Tecnología · Ingeniería · Matemáticas
-        </p>
-
-        <p class="mt-5 max-w-2xl text-base sm:text-lg text-slate-300/90 leading-relaxed">
-          Un día para <span class="text-white font-semibold">ver, tocar y aplicar</span> lo STEM. Charlas inspiradoras,
-          stands interactivos de universidades, clubes y startups, talleres prácticos y observación solar.
-          Pensado para estudiantes de colegio, <span class="text-white font-semibold">abierto a todo público</span>.
-        </p>
-
-        <!-- Cuenta regresiva -->
-        <div id="countdown" class="mt-9 grid grid-cols-4 gap-2 sm:gap-4" role="timer" aria-label="Cuenta regresiva para el evento">
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-days" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">DÍAS</div>
-          </div>
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-hours" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">HORAS</div>
-          </div>
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-mins" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">MIN</div>
-          </div>
-          <div class="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 min-w-[68px]">
-            <div id="cd-secs" class="font-display font-bold text-2xl sm:text-4xl text-white">00</div>
-            <div class="font-mono text-[10px] sm:text-xs text-slate-400 mt-1">SEG</div>
-          </div>
-        </div>
-
-        <!-- CTAs -->
-        <div class="mt-9 flex flex-col sm:flex-row items-center gap-3">
-          <a href="#registro" class="inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer shadow-lg shadow-electric/30">
-            Registrarme gratis
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
-          </a>
-          <a href="#cronograma" class="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/5 transition-colors duration-200 px-7 py-3.5 font-semibold text-white cursor-pointer">
-            Ver cronograma
-          </a>
-        </div>
-
-        <!-- Meta info -->
-        <div class="mt-9 flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-xs sm:text-sm text-slate-300">
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
-            09:00–12:30 · 15:00–18:00
-          </span>
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            Calle Sucre · CBA Santa Cruz, Bolivia
-          </span>
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-4 h-4 text-electric-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            Entrada libre y gratuita
-          </span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ EL EVENTO ============ -->
-  <section id="evento" class="bg-ice text-slate-900 py-20 sm:py-28">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        <div class="reveal">
-          <span class="font-mono text-xs font-semibold tracking-widest text-electric uppercase">¿Qué es la Feria STEM?</span>
-          <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 leading-tight text-navy-900">
-            La ciencia que se <span class="text-electric">ve, se toca</span> y se aplica
-          </h2>
-          <p class="mt-6 text-lg text-slate-600 leading-relaxed">
-            La Feria STEM es un evento de un día donde la ciencia, la tecnología, la ingeniería y las matemáticas
-            salen del aula para volverse experiencia. Un espacio para inspirarse con charlas, descubrir proyectos
-            reales en stands interactivos y aprender haciendo en talleres prácticos.
-          </p>
-          <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-            Está pensada especialmente para estudiantes de <span class="font-semibold text-navy-900">promoción y pre-promoción</span>
-            de colegio que están eligiendo su futuro, pero es <span class="font-semibold text-navy-900">abierta a todo público</span>:
-            familias, docentes, universitarios y curiosos de todas las edades.
-          </p>
-
-          <div class="mt-8 flex flex-wrap gap-3">
-            <span class="inline-flex items-center gap-2 rounded-full bg-navy-900/5 border border-navy-900/10 px-4 py-2 text-sm font-medium text-navy-800">
-              <span class="h-2 w-2 rounded-full bg-electric"></span> Charlas estilo TEDx
-            </span>
-            <span class="inline-flex items-center gap-2 rounded-full bg-navy-900/5 border border-navy-900/10 px-4 py-2 text-sm font-medium text-navy-800">
-              <span class="h-2 w-2 rounded-full bg-electric"></span> Stands interactivos
-            </span>
-            <span class="inline-flex items-center gap-2 rounded-full bg-navy-900/5 border border-navy-900/10 px-4 py-2 text-sm font-medium text-navy-800">
-              <span class="h-2 w-2 rounded-full bg-electric"></span> Talleres prácticos
-            </span>
-            <span class="inline-flex items-center gap-2 rounded-full bg-navy-900/5 border border-navy-900/10 px-4 py-2 text-sm font-medium text-navy-800">
-              <span class="h-2 w-2 rounded-full bg-electric"></span> Observación solar
-            </span>
-          </div>
-        </div>
-
-        <!-- Tarjetas de "stats" / pilares -->
-        <div class="grid grid-cols-2 gap-4 reveal">
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.5 7.1 18.2l.9-5.5-4-3.9 5.5-.8z"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Ciencia</div>
-            <p class="text-sm text-slate-500 mt-1">Experimentos y observación solar en vivo.</p>
-          </div>
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3M14 5l-4 14"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Tecnología</div>
-            <p class="text-sm text-slate-500 mt-1">Taller de programación desde cero.</p>
-          </div>
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4m0 10v4m9-9h-4M7 12H3m13.5-6.5L14 8M8 16l-2.5 2.5m11 0L16 16M8 8L5.5 5.5"/><circle cx="12" cy="12" r="3"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Ingeniería</div>
-            <p class="text-sm text-slate-500 mt-1">Proyectos de clubes y startups en stands.</p>
-          </div>
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16M7 16V8m5 8V5m5 11v-6"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Matemáticas</div>
-            <p class="text-sm text-slate-500 mt-1">Retos y pensamiento lógico aplicado.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Visión / objetivo -->
-      <div class="reveal mt-16 rounded-3xl bg-navy-900 text-white p-8 sm:p-12 relative overflow-hidden">
-        <div class="absolute inset-0 grid-lines opacity-30" aria-hidden="true"></div>
-        <div class="relative max-w-3xl">
-          <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Nuestra visión</span>
-          <p class="font-display font-bold text-2xl sm:text-3xl mt-3 leading-snug">
-            Que la Feria STEM se convierta en el evento de ciencia y tecnología
-            <span class="text-electric-300">referente de Santa Cruz</span>, edición tras edición.
-          </p>
-          <p class="mt-4 text-slate-300 text-lg">
-            Esta es solo la primera de muchas. Construimos un espacio que crece cada año y acerca lo STEM
-            a más estudiantes y familias del departamento.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ CRONOGRAMA ============ -->
-  <section id="cronograma" class="hex-bg py-20 sm:py-28 relative overflow-hidden">
-    <div class="absolute inset-0 grid-lines opacity-50" aria-hidden="true"></div>
-    <div class="relative max-w-7xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto reveal">
-        <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Miércoles 30 de junio · 2026</span>
-        <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Cronograma del día</h2>
-        <p class="mt-4 text-slate-300 text-lg">Una jornada completa dividida en dos grandes momentos.</p>
-      </div>
-
-      <div class="grid lg:grid-cols-2 gap-6 mt-14">
-        <!-- MAÑANA -->
-        <div class="reveal rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 sm:p-9">
-          <div class="flex items-center gap-3 mb-7">
-            <span class="grid place-items-center h-12 w-12 rounded-xl bg-electric/15 text-electric-300">
-              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M3 12h2m14 0h2M5.6 18.4l1.4-1.4m10-10l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
-            </span>
-            <div>
-              <h3 class="font-display font-bold text-2xl text-white">Mañana</h3>
-              <p class="font-mono text-sm text-electric-300">09:00 — 12:30</p>
-            </div>
-          </div>
-
-          <ol class="space-y-5">
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">09:00</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Apertura e inauguración</h4>
-                <p class="text-sm text-slate-400 mt-1">Bienvenida oficial de CBA Santa Cruz y American Spaces.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">09:30</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Ciclo de charlas estilo TEDx</h4>
-                <p class="text-sm text-slate-400 mt-1">Voces inspiradoras compartiendo ideas y experiencias STEM aplicadas.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">10:30</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Stands dinámicos</h4>
-                <p class="text-sm text-slate-400 mt-1">Universidades, clubes y startups muestran proyectos interactivos para explorar y probar.</p>
-              </div>
-            </li>
-          </ol>
-        </div>
-
-        <!-- TARDE -->
-        <div class="reveal rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 sm:p-9">
-          <div class="flex items-center gap-3 mb-7">
-            <span class="grid place-items-center h-12 w-12 rounded-xl bg-electric/15 text-electric-300">
-              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>
-            </span>
-            <div>
-              <h3 class="font-display font-bold text-2xl text-white">Tarde</h3>
-              <p class="font-mono text-sm text-electric-300">15:00 — 18:00</p>
-            </div>
-          </div>
-
-          <ol class="space-y-5">
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">15:00</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Taller de Programación</h4>
-                <p class="text-sm text-slate-400 mt-1">Introducción práctica al código. No necesitas experiencia previa.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">15:00</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Taller de Biología</h4>
-                <p class="text-sm text-slate-400 mt-1">Experimenta con la ciencia de la vida de forma práctica.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">15:00</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Observación Solar <span class="ml-1 rounded bg-electric/20 px-2 py-0.5 text-[10px] font-mono text-electric-300 align-middle">EN PARALELO</span></h4>
-                <p class="text-sm text-slate-400 mt-1">Observa el Sol de forma segura con telescopios especializados.</p>
-              </div>
-            </li>
-          </ol>
-        </div>
-      </div>
-
-      <p class="text-center font-mono text-xs text-slate-500 mt-8">* Los horarios pueden ajustarse. El cronograma final se confirmará a los inscritos.</p>
-    </div>
-  </section>
-
-  <!-- ============ PARTICIPANTES ============ -->
-  <section id="participantes" class="bg-ice text-slate-900 py-20 sm:py-28">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto reveal">
-        <span class="font-mono text-xs font-semibold tracking-widest text-electric uppercase">Quiénes participan</span>
-        <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-navy-900">Universidades, clubes y startups</h2>
-        <p class="mt-4 text-slate-600 text-lg">Un ecosistema STEM reunido en un solo lugar, con stands para conocer, preguntar y experimentar.</p>
-      </div>
-
-      <div class="grid sm:grid-cols-3 gap-6 mt-14">
-        <div class="reveal rounded-2xl bg-white border border-slate-200 p-8 text-center shadow-sm">
-          <span class="grid place-items-center h-14 w-14 rounded-2xl bg-electric/10 text-electric mx-auto mb-5">
-            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4L3 9l9 5 9-5-9-5zM5 11v5c0 1 3 3 7 3s7-2 7-3v-5"/></svg>
-          </span>
-          <h3 class="font-display font-bold text-xl text-navy-900">Universidades</h3>
-          <p class="text-sm text-slate-500 mt-2">Carreras STEM, laboratorios y orientación vocacional para promoción y pre-promoción.</p>
-        </div>
-        <div class="reveal rounded-2xl bg-white border border-slate-200 p-8 text-center shadow-sm">
-          <span class="grid place-items-center h-14 w-14 rounded-2xl bg-electric/10 text-electric mx-auto mb-5">
-            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg>
-          </span>
-          <h3 class="font-display font-bold text-xl text-navy-900">Clubes de ciencia</h3>
-          <p class="text-sm text-slate-500 mt-2">Proyectos estudiantiles, robótica, astronomía y experimentos en vivo.</p>
-        </div>
-        <div class="reveal rounded-2xl bg-white border border-slate-200 p-8 text-center shadow-sm">
-          <span class="grid place-items-center h-14 w-14 rounded-2xl bg-electric/10 text-electric mx-auto mb-5">
-            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 16l4-12 3 7 2-4 5 9M4.5 20h15"/></svg>
-          </span>
-          <h3 class="font-display font-bold text-xl text-navy-900">Startups</h3>
-          <p class="text-sm text-slate-500 mt-2">Emprendimientos de tecnología e innovación mostrando soluciones reales.</p>
-        </div>
-      </div>
-
-      <!-- Espacio para logos de aliados -->
-      <div class="reveal mt-14 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8">
-        <p class="text-center font-mono text-xs uppercase tracking-widest text-slate-400 mb-6">Aliados y participantes</p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-        </div>
-        <p class="text-center text-sm text-slate-500 mt-6">¿Tu universidad, club o startup quiere un stand? <a href="#registro" class="text-electric font-semibold hover:underline">Escríbenos al registrarte</a>.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ UBICACIÓN ============ -->
-  <section id="ubicacion" class="bg-navy-950 py-20 sm:py-28">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="grid lg:grid-cols-2 gap-10 items-center">
-        <div class="reveal">
-          <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Cómo llegar</span>
-          <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">CBA Santa Cruz</h2>
-          <p class="mt-4 text-slate-300 text-lg">Centro Boliviano Americano — un espacio abierto a la comunidad en pleno centro de la ciudad.</p>
-
-          <ul class="mt-8 space-y-5">
-            <li class="flex gap-4">
-              <span class="grid place-items-center h-11 w-11 rounded-xl bg-electric/15 text-electric-300 shrink-0">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold text-white">Dirección</h3>
-                <p class="text-slate-400">Calle Sucre, CBA Santa Cruz de la Sierra, Bolivia.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="grid place-items-center h-11 w-11 rounded-xl bg-electric/15 text-electric-300 shrink-0">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold text-white">Horario</h3>
-                <p class="text-slate-400">Miércoles 30 de junio · 09:00–12:30 y 15:00–18:00</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="grid place-items-center h-11 w-11 rounded-xl bg-electric/15 text-electric-300 shrink-0">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold text-white">Entrada</h3>
-                <p class="text-slate-400">Libre y gratuita. Se recomienda registrarse para reservar tu lugar en los talleres.</p>
-              </div>
-            </li>
-          </ul>
-
-          <a href="https://www.google.com/maps/search/?api=1&query=Centro+Boliviano+Americano+Santa+Cruz+Bolivia" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/5 transition-colors duration-200 px-6 py-3 font-semibold text-white cursor-pointer">
-            Abrir en Google Maps
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5h5v5M19 5l-7 7M19 14v5H5V5h5"/></svg>
-          </a>
-        </div>
-
-        <div class="reveal rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-          <iframe
-            title="Mapa de CBA Santa Cruz"
-            src="https://www.google.com/maps?q=Centro+Boliviano+Americano+Santa+Cruz+Bolivia&output=embed"
-            width="100%" height="420" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ REGISTRO ============ -->
-  <section id="registro" class="hex-bg py-20 sm:py-28 relative overflow-hidden">
-    <div class="absolute inset-0 grid-lines opacity-50" aria-hidden="true"></div>
-    <div class="relative max-w-3xl mx-auto px-5">
-      <div class="text-center reveal">
-        <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Asegura tu lugar</span>
-        <h2 class="font-display font-extrabold text-4xl sm:text-5xl mt-3 text-white">Regístrate gratis</h2>
-        <p class="mt-4 text-slate-300 text-lg">Completa tus datos para reservar tu cupo. Te enviaremos el cronograma final y novedades del evento.</p>
-      </div>
-
-      <form id="registroForm" class="reveal mt-10 rounded-3xl border border-white/10 bg-navy-950/60 backdrop-blur-md p-6 sm:p-9 space-y-5" novalidate>
-        <div class="grid sm:grid-cols-2 gap-5">
-          <div>
-            <label for="nombre" class="block text-sm font-medium text-slate-200 mb-1.5">Nombre completo <span class="text-electric-300">*</span></label>
-            <input id="nombre" name="nombre" type="text" required autocomplete="name"
-              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
-              placeholder="Tu nombre y apellido" />
-          </div>
-          <div>
-            <label for="email" class="block text-sm font-medium text-slate-200 mb-1.5">Correo electrónico <span class="text-electric-300">*</span></label>
-            <input id="email" name="email" type="email" required autocomplete="email"
-              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
-              placeholder="tucorreo@ejemplo.com" />
-          </div>
-        </div>
-
-        <div class="grid sm:grid-cols-2 gap-5">
-          <div>
-            <label for="telefono" class="block text-sm font-medium text-slate-200 mb-1.5">WhatsApp / Teléfono <span class="text-electric-300">*</span></label>
-            <input id="telefono" name="telefono" type="tel" required autocomplete="tel"
-              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
-              placeholder="+591 7XXXXXXX" />
-          </div>
-          <div>
-            <label for="tipo" class="block text-sm font-medium text-slate-200 mb-1.5">Asistes como <span class="text-electric-300">*</span></label>
-            <select id="tipo" name="tipo" required
-              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white focus:border-electric focus:bg-white/10 transition-colors">
-              <option value="" disabled selected class="bg-navy-900">Selecciona una opción</option>
-              <option value="estudiante-promocion" class="bg-navy-900">Estudiante de promoción</option>
-              <option value="estudiante-prepromocion" class="bg-navy-900">Estudiante de pre-promoción</option>
-              <option value="estudiante-otro" class="bg-navy-900">Estudiante (otro curso)</option>
-              <option value="universitario" class="bg-navy-900">Universitario/a</option>
-              <option value="docente" class="bg-navy-900">Docente</option>
-              <option value="expositor" class="bg-navy-900">Universidad / Club / Startup (quiero un stand)</option>
-              <option value="publico" class="bg-navy-900">Público general</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label for="institucion" class="block text-sm font-medium text-slate-200 mb-1.5">Colegio / Institución</label>
-          <input id="institucion" name="institucion" type="text" autocomplete="organization"
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
-            placeholder="Nombre de tu colegio, universidad u organización" />
-        </div>
-
-        <fieldset>
-          <legend class="block text-sm font-medium text-slate-200 mb-2.5">¿Qué actividades te interesan?</legend>
-          <div class="grid sm:grid-cols-2 gap-2.5">
-            <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-colors">
-              <input type="checkbox" name="actividades" value="Charlas TEDx" class="h-4 w-4 rounded accent-electric" />
-              <span class="text-sm text-slate-200">Charlas estilo TEDx</span>
-            </label>
-            <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-colors">
-              <input type="checkbox" name="actividades" value="Stands" class="h-4 w-4 rounded accent-electric" />
-              <span class="text-sm text-slate-200">Stands de universidades y startups</span>
-            </label>
-            <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-colors">
-              <input type="checkbox" name="actividades" value="Taller de Programación" class="h-4 w-4 rounded accent-electric" />
-              <span class="text-sm text-slate-200">Taller de Programación</span>
-            </label>
-            <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-colors">
-              <input type="checkbox" name="actividades" value="Taller de Biología" class="h-4 w-4 rounded accent-electric" />
-              <span class="text-sm text-slate-200">Taller de Biología</span>
-            </label>
-            <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-colors sm:col-span-2">
-              <input type="checkbox" name="actividades" value="Observación Solar" class="h-4 w-4 rounded accent-electric" />
-              <span class="text-sm text-slate-200">Observación Solar</span>
-            </label>
-          </div>
-        </fieldset>
-
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input id="acepto" name="acepto" type="checkbox" required class="mt-1 h-4 w-4 rounded accent-electric" />
-          <span class="text-sm text-slate-400">Acepto que mis datos se usen únicamente para gestionar mi participación en la Feria STEM 2026. <span class="text-electric-300">*</span></span>
-        </label>
-
-        <button type="submit" id="submitBtn"
-          class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-electric hover:bg-electric-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200 px-7 py-4 font-semibold text-white cursor-pointer shadow-lg shadow-electric/30">
-          <span id="submitText">Confirmar mi registro</span>
-          <svg id="submitSpinner" class="hidden w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
-        </button>
-
-        <!-- Mensajes -->
-        <p id="formMsg" class="hidden text-center text-sm rounded-xl px-4 py-3" role="status" aria-live="polite"></p>
-      </form>
-
-      <!-- Panel de administración (solo visible en modo demo local) -->
-      <div id="adminPanel" class="hidden mt-4 text-center">
-        <p class="font-mono text-xs text-slate-500">Modo demo local · <span id="localCount">0</span> registro(s) guardado(s) en este navegador</p>
-        <button id="downloadCsv" class="mt-2 text-sm text-electric-300 hover:text-electric-400 underline cursor-pointer">Descargar registros (CSV)</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ FOOTER ============ -->
-  <footer class="bg-navy-950 border-t border-white/10 py-12">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-8">
-        <div class="text-center sm:text-left">
-          <div class="flex items-center gap-2 justify-center sm:justify-start">
-            <span class="grid place-items-center h-9 w-9 rounded-lg bg-electric text-white font-display font-extrabold text-sm">CBA</span>
-            <span class="font-display font-bold text-white">FERIA STEM <span class="text-electric-300">2026</span></span>
-          </div>
-          <p class="font-mono text-xs text-slate-500 mt-3">CBA Santa Cruz · American Spaces · Bolivia</p>
-        </div>
-
-        <!-- Redes sociales -->
-        <div class="flex items-center gap-4">
-          <a href="https://www.tiktok.com/@cbascience.tem" target="_blank" rel="noopener" aria-label="TikTok @CBASCIENCE.TEM" class="grid place-items-center h-11 w-11 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:border-electric hover:bg-electric/10 transition-colors cursor-pointer">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
-          </a>
-          <a href="https://www.facebook.com/CBA-SCIENCE" target="_blank" rel="noopener" aria-label="Facebook @CBA-SCIENCE" class="grid place-items-center h-11 w-11 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:border-electric hover:bg-electric/10 transition-colors cursor-pointer">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647z"/></svg>
-          </a>
-          <a href="https://www.instagram.com/cba_science.tec" target="_blank" rel="noopener" aria-label="Instagram @CBA_SCIENCE.TEC" class="grid place-items-center h-11 w-11 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:border-electric hover:bg-electric/10 transition-colors cursor-pointer">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227a3.81 3.81 0 0 1-.899 1.382 3.744 3.744 0 0 1-1.38.896c-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421a3.716 3.716 0 0 1-1.379-.899 3.644 3.644 0 0 1-.9-1.38c-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm7.846-10.405a1.441 1.441 0 0 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <div class="mt-8 pt-6 border-t border-white/10 text-center font-mono text-xs text-slate-500">
-        © 2026 Feria STEM · CBA Santa Cruz. Hecho con ciencia, tecnología, ingeniería y matemáticas.
-      </div>
-    </div>
-  </footer>
-
-  <!-- ============ SCRIPTS ============ -->
-  <script>
-    /* =========================================================
-       CONFIGURACIÓN DE BASE DE DATOS (Supabase / SQL)
-       ---------------------------------------------------------
-       Mientras estos valores estén vacíos, el registro funciona
-       en MODO DEMO: guarda en este navegador y permite descargar
-       un CSV. Para guardar los registros en una base de datos SQL
-       real (recomendado), sigue los pasos del archivo LEEME.md y
-       pega aquí tus 2 claves de Supabase.
-    ========================================================= */
-    const SUPABASE_URL = "";       // ej: https://xxxxxxxx.supabase.co
-    const SUPABASE_ANON_KEY = "";  // tu clave pública "anon"
-    const SUPABASE_TABLE = "registros";
-
-    let supa = null;
-    const usingSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
-    if (usingSupabase && window.supabase) {
-      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let tick = 0;
+  (function loop(){
+    tick++;
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    for(const s of stars){
+      const a = (Math.sin(tick*s.sp+s.ph)*0.4+0.6)*0.85;
+      ctx.beginPath();
+      ctx.arc(s.x%cvs.width, s.y%cvs.height, s.r, 0, Math.PI*2);
+      ctx.fillStyle = s.warm ? `rgba(200,210,255,${a})` : `rgba(255,255,255,${a})`;
+      ctx.fill();
     }
-
-    /* ---------- Menú móvil ---------- */
-    const menuBtn = document.getElementById('menuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    menuBtn.addEventListener('click', () => {
-      const open = mobileMenu.classList.toggle('hidden') === false;
-      menuBtn.setAttribute('aria-expanded', String(open));
-    });
-    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      mobileMenu.classList.add('hidden');
-      menuBtn.setAttribute('aria-expanded', 'false');
-    }));
-
-    /* ---------- Cuenta regresiva ---------- */
-    const target = new Date('2026-06-30T09:00:00-04:00').getTime(); // Bolivia UTC-4
-    const cd = {
-      d: document.getElementById('cd-days'),
-      h: document.getElementById('cd-hours'),
-      m: document.getElementById('cd-mins'),
-      s: document.getElementById('cd-secs'),
-    };
-    function tick() {
-      const diff = target - Date.now();
-      if (diff <= 0) {
-        cd.d.textContent = cd.h.textContent = cd.m.textContent = cd.s.textContent = '00';
-        return;
-      }
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      cd.d.textContent = String(d).padStart(2, '0');
-      cd.h.textContent = String(h).padStart(2, '0');
-      cd.m.textContent = String(m).padStart(2, '0');
-      cd.s.textContent = String(s).padStart(2, '0');
+    for(let i=shoots.length-1;i>=0;i--){
+      const s=shoots[i];
+      ctx.save();
+      ctx.globalAlpha=s.op;
+      ctx.strokeStyle='rgba(180,210,255,0.9)';
+      ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(s.x,s.y);
+      ctx.lineTo(s.x-Math.cos(s.angle)*s.len, s.y-Math.sin(s.angle)*s.len);
+      ctx.stroke();
+      ctx.restore();
+      s.x+=Math.cos(s.angle)*s.sp;
+      s.y+=Math.sin(s.angle)*s.sp;
+      s.op-=0.022;
+      if(s.op<=0) shoots.splice(i,1);
     }
-    tick();
-    setInterval(tick, 1000);
+    requestAnimationFrame(loop);
+  })();
+  setInterval(addShoot, 2000);
+  setTimeout(addShoot, 600);
 
-    /* ---------- Animaciones al hacer scroll ---------- */
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!reduceMotion && 'IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
-      }, { threshold: 0.12 });
-      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-    } else {
-      document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
-    }
+  /* ── Flash + ondas + logo ── */
+  const img     = document.getElementById('logo-img');
+  const tagline = document.getElementById('tagline');
+  const fecha   = document.getElementById('fecha');
+  const fadeout = document.getElementById('fadeout');
+  const waves   = [document.getElementById('w1'), document.getElementById('w2'),
+                   document.getElementById('w3'), document.getElementById('w4')];
 
-    /* ---------- Registro ---------- */
-    const form = document.getElementById('registroForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const submitText = document.getElementById('submitText');
-    const submitSpinner = document.getElementById('submitSpinner');
-    const formMsg = document.getElementById('formMsg');
-    const adminPanel = document.getElementById('adminPanel');
-    const localCount = document.getElementById('localCount');
-    const LS_KEY = 'feria_stem_registros';
+  /* Logo flash a 0.5 seg */
+  setTimeout(() => img.classList.add("flash"), 200);
 
-    function showMsg(text, ok) {
-      formMsg.textContent = text;
-      formMsg.classList.remove('hidden', 'bg-green-500/15', 'text-green-300', 'bg-red-500/15', 'text-red-300');
-      formMsg.classList.add(ok ? 'bg-green-500/15' : 'bg-red-500/15', ok ? 'text-green-300' : 'text-red-300');
-    }
-    function setLoading(on) {
-      submitBtn.disabled = on;
-      submitSpinner.classList.toggle('hidden', !on);
-      submitText.textContent = on ? 'Enviando…' : 'Confirmar mi registro';
-    }
-    function getLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } }
-    function refreshAdmin() {
-      if (usingSupabase) return; // en modo SQL real no mostramos el panel local
-      const rows = getLocal();
-      if (rows.length) { adminPanel.classList.remove('hidden'); localCount.textContent = rows.length; }
-    }
-    refreshAdmin();
+  /* Ondas escalonadas desde 0.5 seg */
+  waves.forEach((w, i) => {
+    setTimeout(() => w.classList.add('go'), 200 + i * 100);
+  });
 
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      formMsg.classList.add('hidden');
+  /* Logo se asienta */
+  setTimeout(() => img.classList.add("settle"), 600);
 
-      if (!form.checkValidity()) {
-        showMsg('Por favor completa los campos obligatorios (*).', false);
-        form.reportValidity();
-        return;
-      }
+  /* Tagline */
+  setTimeout(() => tagline.classList.add("show"), 700);
 
-      const actividades = Array.from(form.querySelectorAll('input[name="actividades"]:checked')).map(c => c.value);
-      const registro = {
-        nombre: form.nombre.value.trim(),
-        email: form.email.value.trim(),
-        telefono: form.telefono.value.trim(),
-        tipo: form.tipo.value,
-        institucion: form.institucion.value.trim(),
-        actividades: actividades,
-        creado_en: new Date().toISOString(),
-      };
+  /* Fecha */
+  setTimeout(() => fecha.classList.add("show"), 900);
 
-      setLoading(true);
-      try {
-        if (usingSupabase) {
-          const { error } = await supa.from(SUPABASE_TABLE).insert([registro]);
-          if (error) throw error;
-        } else {
-          // Modo demo: guardar en este navegador
-          const rows = getLocal();
-          rows.push(registro);
-          localStorage.setItem(LS_KEY, JSON.stringify(rows));
-        }
-        showMsg('¡Registro confirmado! 🎉 Te esperamos el 30 de junio. Revisa tu correo para más detalles.', true);
-        form.reset();
-        refreshAdmin();
-      } catch (err) {
-        console.error(err);
-        showMsg('Ocurrió un error al enviar. Inténtalo de nuevo o escríbenos por redes sociales.', false);
-      } finally {
-        setLoading(false);
-      }
-    });
+  /* Fade out a 3.8 seg */
+  setTimeout(() => fadeout.classList.add("out"), 2800);
 
-    /* ---------- Descargar CSV (modo demo) ---------- */
-    document.getElementById('downloadCsv').addEventListener('click', () => {
-      const rows = getLocal();
-      if (!rows.length) return;
-      const headers = ['nombre','email','telefono','tipo','institucion','actividades','creado_en'];
-      const escape = (v) => '"' + String(v).replace(/"/g, '""') + '"';
-      const csv = [headers.join(',')]
-        .concat(rows.map(r => headers.map(h => escape(Array.isArray(r[h]) ? r[h].join('; ') : (r[h] ?? ''))).join(',')))
-        .join('\n');
-      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'registros-feria-stem-2026.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  </script>
+  /* Redirige a la página completa */
+  setTimeout(() => { window.location.href = "inicio.html"; }, 3500);
+
+  /* Skip (clic o tecla) */
+  function skip(){
+    fadeout.classList.add('out');
+    setTimeout(() => { window.location.href = 'inicio.html'; }, 700);
+  }
+  document.addEventListener('click', skip);
+  document.addEventListener('keydown', e => {
+    if(['Space','Enter','Escape'].includes(e.code)) skip();
+  });
+
+})();
+</script>
 </body>
 </html>

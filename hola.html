@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animación - Problema de Sombra en la Pared</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .canvas-section {
+            background: #f0f4f8;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        canvas {
+            border: 3px solid #1e40af;
+            background: white;
+            border-radius: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f9fafb;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            color: #1f2937;
+            min-width: 150px;
+        }
+        
+        .slider {
+            flex: 1;
+            min-width: 200px;
+            height: 8px;
+            border-radius: 5px;
+            background: #d1d5db;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.4);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.4);
+        }
+        
+        .value-display {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-play {
+            background: #10b981;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-play:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+        
+        .btn-pause {
+            background: #f59e0b;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-pause:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+        }
+        
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-reset:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: white;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .info-card h3 {
+            color: #1e40af;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .info-card .value {
+            color: #0c4a6e;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .info-card .unit {
+            color: #0284c7;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .formula-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #f59e0b;
+            grid-column: 1 / -1;
+            font-family: 'Courier New', monospace;
+            color: #92400e;
+        }
+        
+        .formula-card h3 {
+            color: #b45309;
+            margin-bottom: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .formula {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            background: rgba(255,255,255,0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            canvas {
+                max-width: 100%;
+                height: auto !important;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group label {
+                min-width: unset;
+            }
+            
+            .slider {
+                min-width: unset;
+            }
+            
+            .value-display {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📐 Problema de Tasas Relacionadas: Sombra en la Pared</h1>
+            <p>Animación interactiva de cálculo diferencial</p>
+        </div>
+        
+        <!-- Canvas -->
+        <div class="canvas-section">
+            <canvas id="canvas" width="900" height="500"></canvas>
+        </div>
+        
+        <!-- Controles -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="posSlider">📍 Posición de Persona:</label>
+                <input type="range" id="posSlider" class="slider" min="0" max="11" step="0.1" value="8">
+                <span class="value-display"><span id="posValue">8.0</span> m</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="speedSlider">⚡ Velocidad:</label>
+                <input type="range" id="speedSlider" class="slider" min="0" max="2" step="0.1" value="1.2">
+                <span class="value-display"><span id="speedValue">1.2</span> m/s</span>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-play" onclick="startAnimation()">▶ INICIAR ANIMACIÓN</button>
+                <button class="btn-pause" onclick="toggleAnimation()">⏸ PAUSAR</button>
+                <button class="btn-reset" onclick="resetAnimation()">🔄 REINICIAR</button>
+            </div>
+        </div>
+        
+        <!-- Panel de información -->
+        <div class="info-panel">
+            <div class="info-card">
+                <h3>Distancia a Lámpara</h3>
+                <div class="value"><span id="distancia">8.0</span></div>
+                <div class="unit">metros</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>Distancia a Pared</h3>
+                <div class="value"><span id="distPared">4.0</span></div>
+                <div class="unit">metros</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>Altura de Sombra</h3>
+                <div class="value"><span id="altSombra">2.55</span></div>
+                <div class="unit">metros</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>Tasa de Cambio (dh/dt)</h3>
+                <div class="value" style="color: #dc2626;"><span id="tasa">-0.383</span></div>
+                <div class="unit">metros/segundo</div>
+            </div>
+            
+            <div class="formula-card">
+                <h3>📐 Fórmula Utilizada</h3>
+                <div class="formula">
+                    h<sub>s</sub> = <span class="highlight">20.4 / x</span>
+                    <br>
+                    dh<sub>s</sub>/dt = <span class="highlight">-20.4/x² × dx/dt</span>
+                    <br>
+                    Cuando x = 8m: dh<sub>s</sub>/dt = <span class="highlight">-0.383 m/s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas y contexto
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Variables
+        let persona_x = 8; // posición inicial de la persona (8m de lámpara = 4m de pared)
+        let velocidad = 1.2; // velocidad inicial
+        let animando = false;
+        let tiempo_inicio = 0;
+        
+        // Constantes del problema
+        const ALTURA_PERSONA = 1.70; // metros
+        const DISTANCIA_LAMPARA_PARED = 12; // metros
+        const ESCALA = 30; // pixels por metro
+        
+        // Elementos del DOM
+        const sliderPos = document.getElementById('posSlider');
+        const sliderSpeed = document.getElementById('speedSlider');
+        const posValue = document.getElementById('posValue');
+        const speedValue = document.getElementById('speedValue');
+        
+        // Event Listeners para sliders
+        sliderPos.addEventListener('input', (e) => {
+            persona_x = parseFloat(e.target.value);
+            posValue.textContent = persona_x.toFixed(1);
+            updateInfo();
+            dibujar();
+        });
+        
+        sliderSpeed.addEventListener('input', (e) => {
+            velocidad = parseFloat(e.target.value);
+            speedValue.textContent = velocidad.toFixed(1);
+        });
+        
+        // Calcular altura de sombra
+        function calcularAltSombra(x) {
+            if (x <= 0) return 0;
+            return (ALTURA_PERSONA * DISTANCIA_LAMPARA_PARED) / x;
+        }
+        
+        // Calcular tasa de cambio (derivada)
+        function calcularTasa(x, dx_dt) {
+            if (x <= 0) return 0;
+            return -(20.4 / (x * x)) * dx_dt;
+        }
+        
+        // Actualizar información
+        function updateInfo() {
+            const dist = persona_x;
+            const dist_pared = Math.max(0, DISTANCIA_LAMPARA_PARED - dist);
+            const alt_sombra = calcularAltSombra(dist);
+            const tasa = calcularTasa(dist, velocidad);
+            
+            document.getElementById('distancia').textContent = dist.toFixed(1);
+            document.getElementById('distPared').textContent = dist_pared.toFixed(1);
+            document.getElementById('altSombra').textContent = alt_sombra.toFixed(2);
+            document.getElementById('tasa').textContent = tasa.toFixed(3);
+        }
+        
+        // Dibujar todo
+        function dibujar() {
+            // Limpiar canvas
+            ctx.fillStyle = '#f0f4f8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar suelo
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 50);
+            ctx.lineTo(canvas.width, canvas.height - 50);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Posiciones en pixels
+            const lampara_x = 30;
+            const lampara_y = canvas.height - 50;
+            const pared_x = lampara_x + DISTANCIA_LAMPARA_PARED * ESCALA;
+            const persona_pixel_x = lampara_x + persona_x * ESCALA;
+            const persona_head_y = lampara_y - ALTURA_PERSONA * ESCALA;
+            
+            // Dibujar lámpara
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(lampara_x, lampara_y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Rayo de luz
+            const alt_sombra = calcularAltSombra(persona_x);
+            const sombra_y = lampara_y - alt_sombra * ESCALA;
+            
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(lampara_x, lampara_y);
+            ctx.lineTo(persona_pixel_x, persona_head_y);
+            ctx.lineTo(pared_x, sombra_y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Dibujar persona
+            // Cuerpo
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(persona_pixel_x - 8, persona_head_y, 16, ALTURA_PERSONA * ESCALA);
+            
+            // Cabeza
+            ctx.fillStyle = '#1e40af';
+            ctx.beginPath();
+            ctx.arc(persona_pixel_x, persona_head_y - 8, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Dibujar pared
+            ctx.fillStyle = '#e5e7eb';
+            ctx.fillRect(pared_x, 0, 40, canvas.height);
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(pared_x, 0, 40, canvas.height);
+            
+            // Dibujar sombra en pared
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(pared_x + 5, sombra_y, 30, lampara_y - sombra_y);
+            
+            // Etiquetas
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            
+            // Lámpara
+            ctx.fillText('LÁMPARA', lampara_x, lampara_y + 30);
+            
+            // Persona
+            ctx.fillText('PERSONA', persona_pixel_x, lampara_y + 30);
+            
+            // Pared
+            ctx.fillText('PARED', pared_x + 20, 30);
+            
+            // Dimensiones
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([2, 2]);
+            
+            // Distancia persona-lámpara
+            ctx.beginPath();
+            ctx.moveTo(lampara_x, lampara_y + 10);
+            ctx.lineTo(persona_pixel_x, lampara_y + 10);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 13px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${persona_x.toFixed(1)}m`, (lampara_x + persona_pixel_x) / 2, lampara_y + 25);
+            
+            // Altura sombra
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(pared_x + 45, lampara_y);
+            ctx.lineTo(pared_x + 45, sombra_y);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 13px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`h_s = ${alt_sombra.toFixed(2)}m`, pared_x + 50, (lampara_y + sombra_y) / 2);
+            
+            // Altura persona
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(persona_pixel_x - 25, lampara_y);
+            ctx.lineTo(persona_pixel_x - 25, persona_head_y);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText('1.70m', persona_pixel_x - 30, (lampara_y + persona_head_y) / 2);
+        }
+        
+        // Animación
+        function animarCaminada(timestamp) {
+            if (!animando) return;
+            
+            if (tiempo_inicio === 0) {
+                tiempo_inicio = timestamp;
+            }
+            
+            const tiempoTranscurrido = (timestamp - tiempo_inicio) / 1000; // en segundos
+            const nueva_x = Math.max(0.5, 8 - velocidad * tiempoTranscurrido);
+            
+            if (nueva_x > 0.5) {
+                persona_x = nueva_x;
+                sliderPos.value = nueva_x;
+                posValue.textContent = nueva_x.toFixed(1);
+                updateInfo();
+                dibujar();
+                requestAnimationFrame(animarCaminada);
+            } else {
+                animando = false;
+                persona_x = 0.5;
+                sliderPos.value = 0.5;
+                updateInfo();
+                dibujar();
+            }
+        }
+        
+        function startAnimation() {
+            if (!animando) {
+                animando = true;
+                tiempo_inicio = 0;
+                requestAnimationFrame(animarCaminada);
+            }
+        }
+        
+        function toggleAnimation() {
+            animando = !animando;
+            if (animando) {
+                tiempo_inicio = 0;
+                requestAnimationFrame(animarCaminada);
+            }
+        }
+        
+        function resetAnimation() {
+            animando = false;
+            tiempo_inicio = 0;
+            persona_x = 8;
+            sliderPos.value = 8;
+            posValue.textContent = '8.0';
+            updateInfo();
+            dibujar();
+        }
+        
+        // Inicializar
+        updateInfo();
+        dibujar();
+    </script>
+</body>
+</html>
