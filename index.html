@@ -12,8 +12,30 @@
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Supabase JS SDK (para guardar registros en la base de datos SQL) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  const SUPABASE_URL = 'https://nhpcavkozvpncbfwqgsh.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_xxxKzI7sFQMAIB3JfiUg-w_ktZv0TKi';
+  
+  const { createClient } = window.supabase;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function registrarUsuario(nombre, email, telefono, edad, genero, educacion, tipo) {
+    try {
+      const { data, error } = await supabase
+        .from('registros')
+        .insert([{ nombre, email, telefono, edad, genero, educacion, tipo }]);
+      
+      if (error) {
+        alert('Error: ' + error.message);
+      } else {
+        alert('¡Registro exitoso! Te enviaremos más info por WhatsApp.');
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  }
+</script>
+  
 
   <!-- Fuentes: Exo (títulos), Roboto Mono (datos), Inter (texto) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -82,6 +104,18 @@
     .animate-pulse-slow { animation: pulseSlow 4s ease-in-out infinite; }
     @keyframes pulseSlow { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
 
+    /* Marquee (datos curiosos / logos): desplazamiento horizontal continuo */
+    .marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+    .marquee__track { display: flex; width: max-content; will-change: transform; }
+    .marquee--right .marquee__track { animation: marqueeRight 32s linear infinite; }
+    .marquee--logos .marquee__track { animation: marqueeRight 28s linear infinite; }
+    .marquee:hover .marquee__track { animation-play-state: paused; }
+    @keyframes marqueeRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .marquee__track { animation: none !important; }
+    }
+
     /* Foco accesible */
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
       outline: 3px solid #5b7dff; outline-offset: 2px; border-radius: 4px;
@@ -94,14 +128,12 @@
   <!-- ============ NAVBAR ============ -->
   <header class="fixed top-3 left-3 right-3 z-50">
     <nav class="max-w-7xl mx-auto flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-navy-950/70 backdrop-blur-md px-4 sm:px-6 py-3">
-      <a href="#inicio" class="flex items-center gap-2 group" aria-label="Feria STEM 2026 — inicio">
-        <span class="grid place-items-center h-9 w-9 rounded-lg bg-electric text-white font-display font-extrabold text-sm">CBA</span>
-        <span class="hidden sm:flex flex-col leading-none">
-          <span class="font-display font-bold tracking-wide text-white text-sm">FERIA STEM <span class="text-electric-300">2026</span></span>
-          <span class="font-mono text-[10px] text-slate-400">CBA · American Spaces</span>
-        </span>
+      <!-- Logo Feria STEM 2026 -->
+      <a href="#inicio" class="flex items-center group shrink-0" aria-label="Feria STEM 2026 — inicio">
+        <img src="logoferiaazul.png" alt="Feria STEM 2026" class="h-12 sm:h-14 w-auto rounded-md" />
       </a>
 
+      <!-- Navegación -->
       <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
         <a href="#evento" class="hover:text-white transition-colors duration-200">El evento</a>
         <a href="#cronograma" class="hover:text-white transition-colors duration-200">Cronograma</a>
@@ -109,15 +141,21 @@
         <a href="#ubicacion" class="hover:text-white transition-colors duration-200">Ubicación</a>
       </div>
 
-      <a href="#registro" class="hidden sm:inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-4 py-2 text-sm font-semibold text-white cursor-pointer">
-        Registrarme
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
-      </a>
+      <!-- Acciones + logos institucionales -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        <a href="#registro" class="hidden sm:inline-flex items-center gap-2 rounded-xl bg-electric hover:bg-electric-400 transition-colors duration-200 px-4 py-2 text-sm font-semibold text-white cursor-pointer">
+          Registrarme
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
+        </a>
 
-      <!-- Botón menú móvil -->
-      <button id="menuBtn" class="md:hidden grid place-items-center h-10 w-10 rounded-lg border border-white/10 text-white cursor-pointer" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu">
-        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+        <!-- Logos institucionales: rellena logoCBA / logoAmericanSpaces en el bloque editable del JS -->
+        <div id="logosInstitucionales" class="hidden lg:flex items-center gap-3 pl-3 border-l border-white/10"></div>
+
+        <!-- Botón menú móvil -->
+        <button id="menuBtn" class="md:hidden grid place-items-center h-10 w-10 rounded-lg border border-white/10 text-white cursor-pointer" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
     </nav>
 
     <!-- Menú móvil -->
@@ -148,7 +186,7 @@
           MIÉRCOLES 30 DE JUNIO · 2026
         </span>
 
-        <p class="font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2">CBA SANTA CRUZ × AMERICAN SPACES</p>
+        <p class="font-display tracking-[0.35em] text-electric-300 text-sm sm:text-base mb-2">2DA VERSIÓN</p>
 
         <h1 class="font-display font-black text-white leading-[0.85] tracking-tight">
           <span class="block text-3xl sm:text-5xl text-slate-300 font-bold tracking-[0.2em] mb-2">FERIA</span>
@@ -251,46 +289,75 @@
           </div>
         </div>
 
-        <!-- Tarjetas de "stats" / pilares -->
-        <div class="grid grid-cols-2 gap-4 reveal">
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.5 7.1 18.2l.9-5.5-4-3.9 5.5-.8z"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Ciencia</div>
-            <p class="text-sm text-slate-500 mt-1">Experimentos y observación solar en vivo.</p>
+        <!-- ============================================================
+             CARRUSEL: fotos de la PRIMERA edición de la Feria STEM
+             Las 6 fotos se definen en el bloque JS "fotosFeria" (más
+             abajo en este archivo). Solo pega ahí las direcciones.
+        ============================================================ -->
+        <div class="reveal">
+          <div class="relative rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+            <div id="carruselViewport" class="overflow-hidden">
+              <div id="carruselTrack" class="flex transition-transform duration-500 ease-out">
+                <!-- slides generados por JS desde fotosFeria -->
+              </div>
+            </div>
+
+            <!-- Flechas -->
+            <button type="button" data-carousel-dir="-1" aria-label="Foto anterior"
+              class="absolute left-3 top-1/2 -translate-y-1/2 grid place-items-center h-10 w-10 rounded-full bg-navy-900/70 text-white backdrop-blur hover:bg-navy-900 transition-colors cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button type="button" data-carousel-dir="1" aria-label="Foto siguiente"
+              class="absolute right-3 top-1/2 -translate-y-1/2 grid place-items-center h-10 w-10 rounded-full bg-navy-900/70 text-white backdrop-blur hover:bg-navy-900 transition-colors cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Puntos indicadores -->
+            <div id="carruselDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"></div>
           </div>
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3M14 5l-4 14"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Tecnología</div>
-            <p class="text-sm text-slate-500 mt-1">Taller de programación desde cero.</p>
+          <p class="text-center font-mono text-xs text-slate-400 mt-3">Así se vivió la primera edición de la Feria STEM</p>
+        </div>
+      </div>
+
+      <!-- Misión / Visión -->
+      <div class="mt-16 grid md:grid-cols-2 gap-6">
+        <!-- Misión -->
+        <div class="reveal rounded-3xl bg-navy-900 text-white p-8 sm:p-10 relative overflow-hidden">
+          <div class="absolute inset-0 grid-lines opacity-30" aria-hidden="true"></div>
+          <div class="relative">
+            <span class="inline-flex items-center gap-2 font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg>
+              Misión
+            </span>
+            <p class="font-display font-bold text-2xl sm:text-3xl mt-4 leading-snug">
+              Acercar lo STEM a los estudiantes
+            </p>
+            <p class="mt-4 text-slate-300 text-lg">
+              Despertar la curiosidad por la ciencia, la tecnología, la ingeniería y las matemáticas con
+              experiencias reales que inspiren a los jóvenes a elegir un futuro en estas áreas.
+            </p>
           </div>
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4m0 10v4m9-9h-4M7 12H3m13.5-6.5L14 8M8 16l-2.5 2.5m11 0L16 16M8 8L5.5 5.5"/><circle cx="12" cy="12" r="3"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Ingeniería</div>
-            <p class="text-sm text-slate-500 mt-1">Proyectos de clubes y startups en stands.</p>
-          </div>
-          <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-            <svg class="w-9 h-9 text-electric mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16M7 16V8m5 8V5m5 11v-6"/></svg>
-            <div class="font-display font-bold text-2xl text-navy-900">Matemáticas</div>
-            <p class="text-sm text-slate-500 mt-1">Retos y pensamiento lógico aplicado.</p>
+        </div>
+
+        <!-- Visión -->
+        <div class="reveal rounded-3xl bg-electric text-white p-8 sm:p-10 relative overflow-hidden">
+          <div class="absolute inset-0 grid-lines opacity-20" aria-hidden="true"></div>
+          <div class="relative">
+            <span class="inline-flex items-center gap-2 font-mono text-xs font-semibold tracking-widest text-white/80 uppercase">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              Visión
+            </span>
+            <p class="font-display font-bold text-2xl sm:text-3xl mt-4 leading-snug">
+              El evento STEM referente de Santa Cruz
+            </p>
+            <p class="mt-4 text-white/90 text-lg">
+              Que la Feria STEM crezca edición tras edición hasta convertirse en el encuentro de ciencia
+              y tecnología más importante del departamento.
+            </p>
           </div>
         </div>
       </div>
 
-      <!-- Visión / objetivo -->
-      <div class="reveal mt-16 rounded-3xl bg-navy-900 text-white p-8 sm:p-12 relative overflow-hidden">
-        <div class="absolute inset-0 grid-lines opacity-30" aria-hidden="true"></div>
-        <div class="relative max-w-3xl">
-          <span class="font-mono text-xs font-semibold tracking-widest text-electric-300 uppercase">Nuestra visión</span>
-          <p class="font-display font-bold text-2xl sm:text-3xl mt-3 leading-snug">
-            Que la Feria STEM se convierta en el evento de ciencia y tecnología
-            <span class="text-electric-300">referente de Santa Cruz</span>, edición tras edición.
-          </p>
-          <p class="mt-4 text-slate-300 text-lg">
-            Esta es solo la primera de muchas. Construimos un espacio que crece cada año y acerca lo STEM
-            a más estudiantes y familias del departamento.
-          </p>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -326,17 +393,22 @@
               </div>
             </li>
             <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">09:30</span>
+              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">09:00</span>
               <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Ciclo de charlas estilo TEDx</h4>
-                <p class="text-sm text-slate-400 mt-1">Voces inspiradoras compartiendo ideas y experiencias STEM aplicadas.</p>
+                <h4 class="font-semibold text-white">Stands dinámicos <span class="ml-1 rounded bg-electric/20 px-2 py-0.5 text-[10px] font-mono text-electric-300 align-middle">DESDE LA APERTURA</span></h4>
+                <p class="text-sm text-slate-400 mt-1">Universidades, clubes y startups abren sus stands junto con la inauguración, para explorar y probar durante toda la mañana.</p>
               </div>
             </li>
             <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">10:30</span>
+              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">09:30</span>
               <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Stands dinámicos</h4>
-                <p class="text-sm text-slate-400 mt-1">Universidades, clubes y startups muestran proyectos interactivos para explorar y probar.</p>
+                <h4 class="font-semibold text-white">Ciclo de charlas estilo TEDx</h4>
+                <p class="text-sm text-slate-400 mt-1">Cuatro voces inspiradoras, una por cada letra de STEM.</p>
+                <button type="button" data-toggle="charlasDetalle" aria-expanded="false" aria-controls="charlasDetalle"
+                  class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-electric-300 hover:text-electric-400 transition-colors cursor-pointer">
+                  <span data-toggle-label>Ver charlas</span>
+                  <svg class="w-4 h-4 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+                </button>
               </div>
             </li>
           </ol>
@@ -346,7 +418,10 @@
         <div class="reveal rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 sm:p-9">
           <div class="flex items-center gap-3 mb-7">
             <span class="grid place-items-center h-12 w-12 rounded-xl bg-electric/15 text-electric-300">
-              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>
+              <!-- Icono atardecer (sol escondiéndose) -->
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 10V2"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m16 6-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/>
+              </svg>
             </span>
             <div>
               <h3 class="font-display font-bold text-2xl text-white">Tarde</h3>
@@ -356,17 +431,15 @@
 
           <ol class="space-y-5">
             <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">15:00</span>
+              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">15:15</span>
               <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Taller de Programación</h4>
-                <p class="text-sm text-slate-400 mt-1">Introducción práctica al código. No necesitas experiencia previa.</p>
-              </div>
-            </li>
-            <li class="flex gap-4">
-              <span class="font-mono text-sm text-electric-300 pt-1 w-14 shrink-0">15:00</span>
-              <div class="border-l border-white/10 pl-4">
-                <h4 class="font-semibold text-white">Taller de Biología</h4>
-                <p class="text-sm text-slate-400 mt-1">Experimenta con la ciencia de la vida de forma práctica.</p>
+                <h4 class="font-semibold text-white">Talleres prácticos</h4>
+                <p class="text-sm text-slate-400 mt-1">Taller de Biología y Taller de Programación, uno después del otro.</p>
+                <button type="button" data-toggle="talleresDetalle" aria-expanded="false" aria-controls="talleresDetalle"
+                  class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-electric-300 hover:text-electric-400 transition-colors cursor-pointer">
+                  <span data-toggle-label>Ver talleres</span>
+                  <svg class="w-4 h-4 transition-transform" data-toggle-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+                </button>
               </div>
             </li>
             <li class="flex gap-4">
@@ -377,6 +450,63 @@
               </div>
             </li>
           </ol>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           DETALLE DE CHARLAS STEM (se abre con "Ver charlas")
+           Edita los ponentes en el array "ponentesSTEM" del JS.
+      ============================================================ -->
+      <div id="charlasDetalle" class="hidden mt-6 rounded-3xl border border-white/10 bg-navy-950/60 backdrop-blur-md p-6 sm:p-10">
+        <div class="text-center max-w-2xl mx-auto">
+          <h3 class="font-display font-extrabold text-3xl sm:text-4xl text-white">Ciclo de charlas <span class="text-electric-300">STEM</span></h3>
+          <p class="mt-3 text-slate-300">Un ciclo de 4 charlas estilo TEDx. Cada ponente representa una letra del acrónimo STEM y comparte cómo se vive su área en el mundo real.</p>
+        </div>
+        <!-- Acrónimo STEM: una columna por letra con su ponente -->
+        <div id="ponentesGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+          <!-- columnas generadas por JS desde ponentesSTEM -->
+        </div>
+      </div>
+
+      <!-- ============================================================
+           DETALLE DE TALLERES (se abre con "Ver talleres")
+      ============================================================ -->
+      <div id="talleresDetalle" class="hidden mt-6 rounded-3xl border border-white/10 bg-navy-950/60 backdrop-blur-md p-6 sm:p-10">
+        <div class="text-center max-w-2xl mx-auto">
+          <h3 class="font-display font-extrabold text-3xl sm:text-4xl text-white">Talleres de la tarde</h3>
+          <p class="mt-3 text-slate-300">Dos talleres prácticos, uno después del otro. Cupos limitados: regístrate para reservar tu lugar.</p>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-5 mt-10">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div class="flex items-center justify-between">
+              <span class="grid place-items-center h-11 w-11 rounded-xl bg-electric/15 text-electric-300">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v6l-4 8a3 3 0 003 4h8a3 3 0 003-4l-4-8V3M9 3h6M7 14h10"/></svg>
+              </span>
+              <span class="font-mono text-sm text-electric-300">15:15 — 16:15</span>
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mt-4">Taller de Biología</h4>
+            <p class="text-sm text-slate-400 mt-1">Experimenta con la ciencia de la vida de forma práctica y guiada.</p>
+            <button type="button" data-registrar-taller="Taller de Biología"
+              class="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-electric/15 hover:bg-electric text-electric-300 hover:text-white border border-electric/30 transition-colors duration-200 px-4 py-2.5 text-sm font-semibold cursor-pointer">
+              Registrarme a este taller
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
+            </button>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div class="flex items-center justify-between">
+              <span class="grid place-items-center h-11 w-11 rounded-xl bg-electric/15 text-electric-300">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3M14 5l-4 14"/></svg>
+              </span>
+              <span class="font-mono text-sm text-electric-300">16:15 — 17:15</span>
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mt-4">Taller de Programación</h4>
+            <p class="text-sm text-slate-400 mt-1">Introducción práctica al código. No necesitas experiencia previa.</p>
+            <button type="button" data-registrar-taller="Taller de Programación"
+              class="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-electric/15 hover:bg-electric text-electric-300 hover:text-white border border-electric/30 transition-colors duration-200 px-4 py-2.5 text-sm font-semibold cursor-pointer">
+              Registrarme a este taller
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M5 12h13"/></svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -417,16 +547,30 @@
         </div>
       </div>
 
-      <!-- Espacio para logos de aliados -->
-      <div class="reveal mt-14 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8">
-        <p class="text-center font-mono text-xs uppercase tracking-widest text-slate-400 mb-6">Aliados y participantes</p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
-          <div class="grid place-items-center h-16 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium">Logo aliado</div>
+      <!-- ============================================================
+           CARRUSELES DE LOGOS — clic en un logo para verlo ampliado.
+           Edita las listas "logosParticipantes" y "logosAliados" en el JS.
+      ============================================================ -->
+
+      <!-- Participantes -->
+      <div class="reveal mt-16">
+        <p class="text-center font-mono text-xs uppercase tracking-widest text-slate-400 mb-6">Participantes</p>
+        <div class="marquee marquee--logos py-2">
+          <div id="logosParticipantesTrack" class="marquee__track gap-4 items-center">
+            <!-- logos generados por JS -->
+          </div>
         </div>
-        <p class="text-center text-sm text-slate-500 mt-6">¿Tu universidad, club o startup quiere un stand? <a href="#registro" class="text-electric font-semibold hover:underline">Escríbenos al registrarte</a>.</p>
+        <p class="text-center text-sm text-slate-500 mt-6">¿Tu universidad, club o startup quiere un stand? El <span class="font-semibold text-navy-800">registro de participantes abre para la siguiente versión</span> de la feria.</p>
+      </div>
+
+      <!-- Aliados -->
+      <div class="reveal mt-12">
+        <p class="text-center font-mono text-xs uppercase tracking-widest text-slate-400 mb-6">Aliados</p>
+        <div class="marquee marquee--logos py-2">
+          <div id="logosTrack" class="marquee__track gap-4 items-center">
+            <!-- logos generados por JS -->
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -535,11 +679,45 @@
           </div>
         </div>
 
-        <div>
-          <label for="institucion" class="block text-sm font-medium text-slate-200 mb-1.5">Colegio / Institución</label>
-          <input id="institucion" name="institucion" type="text" autocomplete="organization"
-            class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
-            placeholder="Nombre de tu colegio, universidad u organización" />
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label for="edad" class="block text-sm font-medium text-slate-200 mb-1.5">Edad <span class="text-electric-300">*</span></label>
+            <input id="edad" name="edad" type="number" required min="1" max="120" step="1" inputmode="numeric"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
+              placeholder="Ej. 17" />
+          </div>
+          <div>
+            <label for="genero" class="block text-sm font-medium text-slate-200 mb-1.5">Género <span class="text-electric-300">*</span></label>
+            <select id="genero" name="genero" required
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white focus:border-electric focus:bg-white/10 transition-colors">
+              <option value="" disabled selected class="bg-navy-900">Selecciona una opción</option>
+              <option value="Mujer" class="bg-navy-900">Mujer</option>
+              <option value="Hombre" class="bg-navy-900">Hombre</option>
+              <option value="Prefiero no decirlo" class="bg-navy-900">Prefiero no decirlo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label for="educacion" class="block text-sm font-medium text-slate-200 mb-1.5">Nivel de educación <span class="text-electric-300">*</span></label>
+            <select id="educacion" name="educacion" required
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white focus:border-electric focus:bg-white/10 transition-colors">
+              <option value="" disabled selected class="bg-navy-900">Selecciona una opción</option>
+              <option value="Primaria" class="bg-navy-900">Primaria</option>
+              <option value="Secundaria" class="bg-navy-900">Secundaria</option>
+              <option value="Universidad" class="bg-navy-900">Universidad</option>
+              <option value="Profesional" class="bg-navy-900">Profesional</option>
+              <option value="Otros" class="bg-navy-900">Otros</option>
+            </select>
+          </div>
+          <div>
+            <label for="institucion" class="block text-sm font-medium text-slate-200 mb-1.5">Colegio / Institución</label>
+            <input id="institucion" name="institucion" type="text" autocomplete="organization"
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
+              placeholder="Nombre de tu colegio o institución" />
+          </div>
         </div>
 
         <fieldset>
@@ -582,12 +760,6 @@
         <!-- Mensajes -->
         <p id="formMsg" class="hidden text-center text-sm rounded-xl px-4 py-3" role="status" aria-live="polite"></p>
       </form>
-
-      <!-- Panel de administración (solo visible en modo demo local) -->
-      <div id="adminPanel" class="hidden mt-4 text-center">
-        <p class="font-mono text-xs text-slate-500">Modo demo local · <span id="localCount">0</span> registro(s) guardado(s) en este navegador</p>
-        <button id="downloadCsv" class="mt-2 text-sm text-electric-300 hover:text-electric-400 underline cursor-pointer">Descargar registros (CSV)</button>
-      </div>
     </div>
   </section>
 
@@ -623,6 +795,14 @@
     </div>
   </footer>
 
+  <!-- ============ LIGHTBOX DE LOGOS (zoom) ============ -->
+  <div id="logoLightbox" class="hidden fixed inset-0 z-[60] items-center justify-center bg-navy-950/85 backdrop-blur-sm p-6" role="dialog" aria-modal="true" aria-label="Logo ampliado">
+    <button id="logoLightboxClose" class="absolute top-5 right-5 grid place-items-center h-11 w-11 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer" aria-label="Cerrar">
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div id="logoLightboxContent" class="max-w-md w-full rounded-3xl bg-white p-10 grid place-items-center shadow-2xl min-h-[200px]"></div>
+  </div>
+
   <!-- ============ SCRIPTS ============ -->
   <script>
     /* =========================================================
@@ -643,6 +823,209 @@
     if (usingSupabase && window.supabase) {
       supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
+
+    /* =========================================================
+       ⬇️ CONTENIDO EDITABLE — cambia SOLO estas listas.
+          El resto (carruseles, ponentes, logos) se arma solo.
+    ========================================================= */
+
+    // 1) FOTOS de la primera Feria STEM (carrusel de 6).
+    //    Pega la dirección de cada foto entre las comillas.
+    //    Puede ser una ruta local ("fotos/foto1.jpg") o una URL ("https://...").
+    //    Si la dejas vacía "", se muestra un espacio reservado.
+    const fotosFeria = [
+      "", // Foto 1
+      "", // Foto 2
+      "", // Foto 3
+      "", // Foto 4
+      "", // Foto 5
+      "", // Foto 6
+    ];
+
+    // 2) PONENTES del ciclo STEM (4 charlas, una por letra).
+    //    Pega la foto de cada ponente en "foto" y completa nombre y tema.
+    const ponentesSTEM = [
+      { letra: "S", area: "Ciencia",     nombre: "Por confirmar", tema: "El tema de esta charla", foto: "" },
+      { letra: "T", area: "Tecnología",  nombre: "Por confirmar", tema: "El tema de esta charla", foto: "" },
+      { letra: "E", area: "Ingeniería",  nombre: "Por confirmar", tema: "El tema de esta charla", foto: "" },
+      { letra: "M", area: "Matemáticas", nombre: "Por confirmar", tema: "El tema de esta charla", foto: "" },
+    ];
+
+    // 3) LOGOS de PARTICIPANTES (universidades, clubes y startups que asisten).
+    //    Carrusel con zoom al hacer clic. Pega la dirección de cada logo.
+    const logosParticipantes = [
+      "", // Logo 1
+      "", // Logo 2
+      "", // Logo 3
+      "", // Logo 4
+      "", // Logo 5
+      "", // Logo 6
+    ];
+
+    // 4) LOGOS de ALIADOS (patrocinadores / instituciones aliadas).
+    const logosAliados = [
+      "", // Logo 1
+      "", // Logo 2
+      "", // Logo 3
+      "", // Logo 4
+    ];
+
+    // 5) LOGO INSTITUCIONAL del navbar (CBA Santa Cruz + American Spaces, ya combinados).
+    const logoInstituciones = "logocba.png";
+
+    /* ===== Fin del contenido editable ===== */
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const ICON_IMG = '<svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 16l-5-5L5 20"/></svg>';
+    const ICON_USER = '<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
+
+    /* ---------- Carrusel de fotos ---------- */
+    (function initCarrusel() {
+      const track = document.getElementById('carruselTrack');
+      const dotsBox = document.getElementById('carruselDots');
+      if (!track) return;
+      const n = fotosFeria.length;
+      let index = 0;
+
+      fotosFeria.forEach((src, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'shrink-0 w-full';
+        slide.innerHTML = src
+          ? `<img src="${src}" alt="Foto ${i + 1} de la primera Feria STEM" class="w-full aspect-[4/3] object-cover" loading="lazy">`
+          : `<div class="w-full aspect-[4/3] grid place-items-center bg-slate-100 text-slate-400">
+               <div class="text-center">${ICON_IMG}<p class="font-mono text-sm mt-2">Foto ${i + 1}</p><p class="font-mono text-xs">pega la URL en "fotosFeria"</p></div>
+             </div>`;
+        track.appendChild(slide);
+
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.setAttribute('aria-label', 'Ir a la foto ' + (i + 1));
+        dot.className = 'h-2.5 w-2.5 rounded-full bg-white/50 hover:bg-white/80 cursor-pointer transition-colors';
+        dot.addEventListener('click', () => go(i));
+        dotsBox.appendChild(dot);
+      });
+
+      function update() {
+        track.style.transform = `translateX(-${index * 100}%)`;
+        Array.from(dotsBox.children).forEach((d, i) => {
+          d.classList.toggle('bg-white', i === index);
+          d.classList.toggle('bg-white/50', i !== index);
+        });
+      }
+      function go(i) { index = (i + n) % n; update(); }
+
+      document.querySelectorAll('[data-carousel-dir]').forEach(btn =>
+        btn.addEventListener('click', () => go(index + parseInt(btn.dataset.carouselDir, 10))));
+
+      update();
+      if (!prefersReducedMotion) setInterval(() => go(index + 1), 5000);
+    })();
+
+    /* ---------- Lightbox de logos (zoom al hacer clic) ---------- */
+    const lightbox = document.getElementById('logoLightbox');
+    const lightboxContent = document.getElementById('logoLightboxContent');
+    function openLightbox(html) {
+      lightboxContent.innerHTML = html;
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+    }
+    function closeLightbox() {
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+      lightboxContent.innerHTML = '';
+    }
+    document.getElementById('logoLightboxClose').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lightbox.classList.contains('hidden')) closeLightbox(); });
+
+    /* ---------- Carruseles de logos (participantes / aliados) con zoom ---------- */
+    function initTrackLogos(trackId, lista, etiqueta) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+      const base = (lista && lista.length) ? lista : ['', '', '', ''];
+      const make = (src, i) => {
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'shrink-0 grid place-items-center h-20 w-40 rounded-xl bg-white border border-slate-200 shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105';
+        el.setAttribute('aria-label', 'Ampliar ' + etiqueta + ' ' + (i + 1));
+        el.innerHTML = src
+          ? `<img src="${src}" alt="${etiqueta} ${i + 1}" class="max-h-12 max-w-[80%] object-contain">`
+          : `<span class="font-mono text-xs text-slate-400 text-center px-2">Logo ${i + 1}</span>`;
+        el.addEventListener('click', () => openLightbox(
+          src
+            ? `<img src="${src}" alt="${etiqueta} ${i + 1}" class="max-h-[60vh] max-w-full object-contain">`
+            : `<div class="text-center text-slate-400 py-8"><span class="font-mono text-lg">Logo ${i + 1}</span><p class="text-sm mt-2">Aún sin imagen</p></div>`
+        ));
+        return el;
+      };
+      [...base, ...base].forEach((src, i) => track.appendChild(make(src, i % base.length)));
+    }
+    initTrackLogos('logosParticipantesTrack', logosParticipantes, 'Logo de participante');
+    initTrackLogos('logosTrack', logosAliados, 'Logo de aliado');
+
+    /* ---------- Logos institucionales del navbar ---------- */
+    (function initLogosInstitucionales() {
+      const box = document.getElementById('logosInstitucionales');
+      if (!box) return;
+      const slot = (src, alt, fallback) => src
+        ? `<img src="${src}" alt="${alt}" class="h-9 w-auto object-contain">`
+        : fallback;
+      box.innerHTML =
+        slot(logoCBA, 'CBA Santa Cruz',
+          '<div class="text-center leading-none"><div class="font-display font-extrabold text-white text-base tracking-tight">CBA</div><div class="font-mono text-[7px] text-slate-400 tracking-[0.25em] mt-0.5">SANTA CRUZ</div></div>')
+        + '<span class="h-8 w-px bg-white/20"></span>'
+        + slot(logoAmericanSpaces, 'American Spaces',
+          '<div class="font-body text-white text-xs leading-tight">American<br>Spaces</div>');
+    })();
+
+    /* ---------- Botón "Registrarme a este taller" ---------- */
+    document.querySelectorAll('[data-registrar-taller]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.registrarTaller;
+        const cb = document.querySelector(`input[name="actividades"][value="${val}"]`);
+        if (cb) cb.checked = true;
+        document.getElementById('registro').scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+      });
+    });
+
+    /* ---------- Ponentes STEM ---------- */
+    (function initPonentes() {
+      const grid = document.getElementById('ponentesGrid');
+      if (!grid) return;
+      ponentesSTEM.forEach(p => {
+        const col = document.createElement('div');
+        col.className = 'text-center';
+        const foto = p.foto
+          ? `<img src="${p.foto}" alt="Ponente de ${p.area}: ${p.nombre}" class="w-full aspect-square object-cover rounded-2xl">`
+          : `<div class="w-full aspect-square rounded-2xl bg-white/5 border border-white/10 grid place-items-center text-slate-500">${ICON_USER}</div>`;
+        col.innerHTML = `
+          <div class="font-display font-black text-5xl sm:text-6xl text-electric-300 mb-3">${p.letra}</div>
+          ${foto}
+          <div class="font-mono text-xs text-electric-300 uppercase tracking-widest mt-4">${p.area}</div>
+          <div class="font-semibold text-white mt-1">${p.nombre}</div>
+          <p class="text-sm text-slate-400 mt-1">${p.tema}</p>`;
+        grid.appendChild(col);
+      });
+    })();
+
+    /* ---------- Botones "Ver más" (charlas / talleres) ---------- */
+    document.querySelectorAll('[data-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const panel = document.getElementById(btn.dataset.toggle);
+        if (!panel) return;
+        const open = panel.classList.toggle('hidden') === false;
+        btn.setAttribute('aria-expanded', String(open));
+        const label = btn.querySelector('[data-toggle-label]');
+        const icon = btn.querySelector('[data-toggle-icon]');
+        if (icon) icon.style.transform = open ? 'rotate(180deg)' : '';
+        if (label) {
+          const base = btn.dataset.toggle === 'charlasDetalle' ? 'charlas' : 'talleres';
+          label.textContent = open ? ('Ocultar ' + base) : ('Ver ' + base);
+        }
+        if (open) panel.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+      });
+    });
 
     /* ---------- Menú móvil ---------- */
     const menuBtn = document.getElementById('menuBtn');
@@ -699,9 +1082,6 @@
     const submitText = document.getElementById('submitText');
     const submitSpinner = document.getElementById('submitSpinner');
     const formMsg = document.getElementById('formMsg');
-    const adminPanel = document.getElementById('adminPanel');
-    const localCount = document.getElementById('localCount');
-    const LS_KEY = 'feria_stem_registros';
 
     function showMsg(text, ok) {
       formMsg.textContent = text;
@@ -713,14 +1093,6 @@
       submitSpinner.classList.toggle('hidden', !on);
       submitText.textContent = on ? 'Enviando…' : 'Confirmar mi registro';
     }
-    function getLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } }
-    function refreshAdmin() {
-      if (usingSupabase) return; // en modo SQL real no mostramos el panel local
-      const rows = getLocal();
-      if (rows.length) { adminPanel.classList.remove('hidden'); localCount.textContent = rows.length; }
-    }
-    refreshAdmin();
-
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       formMsg.classList.add('hidden');
@@ -736,6 +1108,9 @@
         nombre: form.nombre.value.trim(),
         email: form.email.value.trim(),
         telefono: form.telefono.value.trim(),
+        edad: form.edad.value ? parseInt(form.edad.value, 10) : null,
+        genero: form.genero.value,
+        educacion: form.educacion.value,
         tipo: form.tipo.value,
         institucion: form.institucion.value.trim(),
         actividades: actividades,
@@ -748,14 +1123,11 @@
           const { error } = await supa.from(SUPABASE_TABLE).insert([registro]);
           if (error) throw error;
         } else {
-          // Modo demo: guardar en este navegador
-          const rows = getLocal();
-          rows.push(registro);
-          localStorage.setItem(LS_KEY, JSON.stringify(rows));
+          // Modo demo (sin base de datos configurada): espera simulada.
+          await new Promise(r => setTimeout(r, 500));
         }
         showMsg('¡Registro confirmado! 🎉 Te esperamos el 30 de junio. Revisa tu correo para más detalles.', true);
         form.reset();
-        refreshAdmin();
       } catch (err) {
         console.error(err);
         showMsg('Ocurrió un error al enviar. Inténtalo de nuevo o escríbenos por redes sociales.', false);
@@ -764,22 +1136,6 @@
       }
     });
 
-    /* ---------- Descargar CSV (modo demo) ---------- */
-    document.getElementById('downloadCsv').addEventListener('click', () => {
-      const rows = getLocal();
-      if (!rows.length) return;
-      const headers = ['nombre','email','telefono','tipo','institucion','actividades','creado_en'];
-      const escape = (v) => '"' + String(v).replace(/"/g, '""') + '"';
-      const csv = [headers.join(',')]
-        .concat(rows.map(r => headers.map(h => escape(Array.isArray(r[h]) ? r[h].join('; ') : (r[h] ?? ''))).join(',')))
-        .join('\n');
-      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'registros-feria-stem-2026.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    });
   </script>
 </body>
 </html>
