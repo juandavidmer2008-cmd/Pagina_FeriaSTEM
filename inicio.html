@@ -185,20 +185,20 @@
     .hc-marquee:hover .hc-track { animation-play-state: paused; }
     @keyframes hcScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-    .hc-col { display: flex; flex-direction: column; gap: 10px; }
-    .hc-col:not(:first-child) { margin-left: -28px; }   /* solape horizontal de las celdas */
-    .hc-col.down { transform: translateY(69px); }       /* columnas alternas desplazadas (panal) */
-
     .hexcell {
-      width: 112px; height: 128px;
-      clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+      border-radius: 50%;
       background: #fff;
       display: grid; place-items: center;
-      cursor: pointer; padding: 16px;
-      transition: filter .2s ease, transform .2s ease;
+      cursor: pointer; padding: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.30), 0 1px 6px rgba(0,0,0,0.15);
+      transition: transform .2s ease, box-shadow .2s ease;
+      flex-shrink: 0;
     }
-    .hexcell:hover { filter: drop-shadow(0 8px 18px rgba(47,92,255,0.45)); transform: scale(1.06); }
-    .hexcell img { max-width: 78%; max-height: 70%; object-fit: contain; }
+    .hexcell:hover {
+      transform: scale(1.09);
+      box-shadow: 0 8px 32px rgba(47,92,255,0.45), 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .hexcell img { max-width: 80%; max-height: 80%; object-fit: contain; }
     .hexcell .hc-ph { font-family: 'Roboto Mono', monospace; font-size: 10px; color: #94a3b8; text-align: center; }
     @media (prefers-reduced-motion: reduce) { .hc-track { animation: none !important; } }
 
@@ -273,12 +273,17 @@
     }
     .stands-dot.active-dot { background: #2f5cff; transform: scale(1.4); }
 
-    /* Hexágonos centrados (sin auto-scroll, estáticos dentro del slide) */
+    /* Círculos centrados (bubble cluster, estilo Canva) */
     .hc-centered {
       display: flex; justify-content: center;
-      padding: 20px 0 88px;
+      padding: 16px 10px 36px;
     }
-    .hc-center-track { display: flex; justify-content: center; }
+    .hc-center-track {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; align-items: center;
+      max-width: 720px; gap: 12px;
+      padding: 8px 0;
+    }
   </style>
 </head>
 
@@ -850,9 +855,12 @@
         <div class="grid sm:grid-cols-2 gap-5">
           <div>
             <label for="telefono" class="block text-sm font-medium text-slate-200 mb-1.5">WhatsApp / Teléfono <span class="text-electric-300">*</span></label>
-            <input id="telefono" name="telefono" type="tel" required autocomplete="tel"
+            <input id="telefono" name="telefono" type="tel" required autocomplete="off"
+              inputmode="numeric" maxlength="8" pattern="[0-9]{8}"
+              title="Ingresa los 8 dígitos de tu número (sin código de país)"
+              oninput="this.value = this.value.replace(/\D/g, '').slice(0, 8)"
               class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
-              placeholder="+591 7XXXXXXX" />
+              placeholder="Ej. 7XXXXXXX" />
           </div>
           <div>
             <label for="tipo" class="block text-sm font-medium text-slate-200 mb-1.5">Asistes como <span class="text-electric-300">*</span></label>
@@ -904,8 +912,8 @@
             </select>
           </div>
           <div>
-            <label for="institucion" class="block text-sm font-medium text-slate-200 mb-1.5">Colegio / Institución</label>
-            <input id="institucion" name="institucion" type="text" autocomplete="organization"
+            <label for="institucion" class="block text-sm font-medium text-slate-200 mb-1.5">Colegio / Institución <span class="text-electric-300">*</span></label>
+            <input id="institucion" name="institucion" type="text" required autocomplete="organization"
               class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-slate-500 focus:border-electric focus:bg-white/10 transition-colors"
               placeholder="Nombre de tu colegio o institución" />
           </div>
@@ -1075,7 +1083,12 @@
       "Fablab.png", // Logo 7
       "CBAScience.png", // Logo 8
       "CBA.png", // Logo 9
-       "Astrocba.jpg", // Logo 8
+       "Astrocba.jpg", // Logo 10
+      "americanspaces.png", // Logo 11 
+      "coletours.png", // Logo 12
+      "CPEDEC.png", // Logo 13
+      "GIAE.png", // Logo 14
+
     ];
 
     // 4) LOGO INSTITUCIONAL del navbar (CBA Santa Cruz + American Spaces, ya combinados).
@@ -1109,18 +1122,24 @@
     lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lightbox.classList.contains('hidden')) closeLightbox(); });
 
-    /* ---------- Carruseles en PANAL DE ABEJA (universidades / clubes) ---------- */
+    /* ---------- Logos en CÍRCULOS (bubble cluster, estilo Canva) ---------- */
     function initHoneycomb(trackId, lista, etiqueta) {
       const track = document.getElementById(trackId);
       if (!track) return;
-      const base = (lista && lista.length) ? lista.filter((_, i) => true) : ['', '', '', ''];
-      const datos = base.length ? base : ['', '', '', ''];
+      const datos = (lista && lista.length) ? lista : ['', '', '', ''];
 
-      // Crea una celda hexagonal con su logo (o un marcador si está vacío)
-      const hex = (src, i) => {
+      // Tamaños y offsets alternados para el efecto orgánico de burbujas
+      const sizePattern   = [112, 96, 122, 104, 114, 92, 118, 100, 108, 96, 116, 102];
+      const offsetPattern = [0, -14, 8, -10, 16, -8, 12, -16, 4, -12, 10, -6];
+
+      datos.forEach((src, i) => {
+        const size = sizePattern[i % sizePattern.length];
         const cell = document.createElement('button');
         cell.type = 'button';
         cell.className = 'hexcell';
+        cell.style.width  = size + 'px';
+        cell.style.height = size + 'px';
+        cell.style.marginTop = offsetPattern[i % offsetPattern.length] + 'px';
         cell.setAttribute('aria-label', 'Ampliar ' + etiqueta + ' ' + (i + 1));
         cell.innerHTML = src
           ? `<img src="${src}" alt="${etiqueta} ${i + 1}">`
@@ -1130,24 +1149,8 @@
             ? `<img src="${src}" alt="${etiqueta} ${i + 1}" class="max-h-[60vh] max-w-full object-contain">`
             : `<div class="text-center text-slate-400 py-8"><span class="font-mono text-lg">Logo ${i + 1}</span><p class="text-sm mt-2">Aún sin imagen</p></div>`
         ));
-        return cell;
-      };
-
-      // Construye las columnas del panal (2 hexágonos por columna, alternando desplazamiento)
-      function construirGrupo() {
-        const grupo = document.createElement('div');
-        grupo.style.display = 'flex';
-        grupo.style.alignItems = 'flex-start';
-        for (let i = 0; i < datos.length; i += 2) {
-          const col = document.createElement('div');
-          col.className = 'hc-col' + (((i / 2) % 2 === 1) ? ' down' : '');
-          col.appendChild(hex(datos[i], i));
-          if (datos[i + 1] !== undefined) col.appendChild(hex(datos[i + 1], i + 1));
-          grupo.appendChild(col);
-        }
-        return grupo;
-      }
-      track.appendChild(construirGrupo());
+        track.appendChild(cell);
+      });
     }
     initHoneycomb('honeycombUniversidades', logosUniversidades, 'Logo de universidad');
     initHoneycomb('honeycombClubes', logosClubes, 'Logo de club o startup');
@@ -1513,9 +1516,43 @@
       submitSpinner.classList.toggle('hidden', !on);
       submitText.textContent = on ? 'Enviando…' : 'Confirmar mi registro';
     }
+    function validarCampos() {
+      const nombre     = form.nombre.value.trim();
+      const email      = form.email.value.trim();
+      const telefono   = form.telefono.value.replace(/\D/g, '');
+      const edad       = parseInt(form.edad.value, 10);
+      const institucion = form.institucion.value.trim();
+
+      if (!nombre || nombre.length < 3)
+        return 'El nombre completo es obligatorio (mínimo 3 caracteres).';
+      if (!/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s''-]+$/.test(nombre))
+        return 'El nombre solo puede contener letras y espacios.';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+        return 'Ingresa un correo electrónico válido.';
+      if (telefono.length !== 8)
+        return 'El número de teléfono debe tener exactamente 8 dígitos (Ej. 7XXXXXXX).';
+      if (isNaN(edad) || edad < 1 || edad > 120)
+        return 'Ingresa una edad válida (entre 1 y 120 años).';
+      if (!form.genero.value)
+        return 'Selecciona tu género.';
+      if (!form.tipo.value)
+        return 'Selecciona cómo asistes al evento.';
+      if (!form.educacion.value)
+        return 'Selecciona tu nivel de educación.';
+      if (!institucion || institucion.length < 2)
+        return 'El nombre del colegio o institución es obligatorio.';
+      return null;
+    }
+
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       formMsg.classList.add('hidden');
+
+      const errorValidacion = validarCampos();
+      if (errorValidacion) {
+        showMsg(errorValidacion, false);
+        return;
+      }
 
       if (!form.checkValidity()) {
         showMsg('Por favor completa los campos obligatorios (*).', false);
@@ -1532,7 +1569,7 @@
       const registro = {
         nombre: form.nombre.value.trim(),
         email: form.email.value.trim(),
-        telefono: form.telefono.value.trim(),
+        telefono: form.telefono.value.replace(/\D/g, ''),
         edad: form.edad.value ? parseInt(form.edad.value, 10) : null,
         genero: form.genero.value,
         educacion: form.educacion.value,
